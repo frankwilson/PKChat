@@ -14,6 +14,9 @@
 		9D8544321BBA94AF00AA9834 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9D8544301BBA94AF00AA9834 /* LaunchScreen.storyboard */; };
 		9D85443D1BBA94AF00AA9834 /* ExchangeAndReturnChatTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D85443C1BBA94AF00AA9834 /* ExchangeAndReturnChatTests.swift */; };
 		9D8544481BBA94AF00AA9834 /* ExchangeAndReturnChatUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8544471BBA94AF00AA9834 /* ExchangeAndReturnChatUITests.swift */; };
+		9D8544561BBA968300AA9834 /* ExchangeAndReturnChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8544551BBA968300AA9834 /* ExchangeAndReturnChatViewController.swift */; settings = {ASSET_TAGS = (); }; };
+		9D85445A1BBAA4BD00AA9834 /* ChatCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8544591BBAA4BD00AA9834 /* ChatCollectionViewCell.swift */; settings = {ASSET_TAGS = (); }; };
+		9D8544601BBC113000AA9834 /* NSString+Awad.m in Sources */ = {isa = PBXBuildFile; fileRef = 9D85445F1BBC113000AA9834 /* NSString+Awad.m */; settings = {ASSET_TAGS = (); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,6 +50,12 @@
 		9D8544431BBA94AF00AA9834 /* ExchangeAndReturnChatUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ExchangeAndReturnChatUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9D8544471BBA94AF00AA9834 /* ExchangeAndReturnChatUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeAndReturnChatUITests.swift; sourceTree = "<group>"; };
 		9D8544491BBA94AF00AA9834 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		9D8544551BBA968300AA9834 /* ExchangeAndReturnChatViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExchangeAndReturnChatViewController.swift; sourceTree = "<group>"; };
+		9D8544591BBAA4BD00AA9834 /* ChatCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatCollectionViewCell.swift; sourceTree = "<group>"; };
+		9D85445B1BBAE84100AA9834 /* AwadStyles.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AwadStyles.h; sourceTree = "<group>"; };
+		9D85445C1BBAE87F00AA9834 /* ExchangeAndReturnChat-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ExchangeAndReturnChat-Bridging-Header.h"; sourceTree = "<group>"; };
+		9D85445E1BBC113000AA9834 /* NSString+Awad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Awad.h"; sourceTree = "<group>"; };
+		9D85445F1BBC113000AA9834 /* NSString+Awad.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+Awad.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,12 +106,17 @@
 		9D8544261BBA94AF00AA9834 /* ExchangeAndReturnChat */ = {
 			isa = PBXGroup;
 			children = (
+				9D85445D1BBC112200AA9834 /* Awad */,
 				9D8544271BBA94AF00AA9834 /* AppDelegate.swift */,
 				9D8544291BBA94AF00AA9834 /* ViewController.swift */,
+				9D8544551BBA968300AA9834 /* ExchangeAndReturnChatViewController.swift */,
+				9D8544591BBAA4BD00AA9834 /* ChatCollectionViewCell.swift */,
 				9D85442B1BBA94AF00AA9834 /* Main.storyboard */,
+				9D85445B1BBAE84100AA9834 /* AwadStyles.h */,
 				9D85442E1BBA94AF00AA9834 /* Assets.xcassets */,
 				9D8544301BBA94AF00AA9834 /* LaunchScreen.storyboard */,
 				9D8544331BBA94AF00AA9834 /* Info.plist */,
+				9D85445C1BBAE87F00AA9834 /* ExchangeAndReturnChat-Bridging-Header.h */,
 			);
 			path = ExchangeAndReturnChat;
 			sourceTree = "<group>";
@@ -123,6 +137,15 @@
 				9D8544491BBA94AF00AA9834 /* Info.plist */,
 			);
 			path = ExchangeAndReturnChatUITests;
+			sourceTree = "<group>";
+		};
+		9D85445D1BBC112200AA9834 /* Awad */ = {
+			isa = PBXGroup;
+			children = (
+				9D85445E1BBC113000AA9834 /* NSString+Awad.h */,
+				9D85445F1BBC113000AA9834 /* NSString+Awad.m */,
+			);
+			path = Awad;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -255,7 +278,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9D8544601BBC113000AA9834 /* NSString+Awad.m in Sources */,
 				9D85442A1BBA94AF00AA9834 /* ViewController.swift in Sources */,
+				9D8544561BBA968300AA9834 /* ExchangeAndReturnChatViewController.swift in Sources */,
+				9D85445A1BBAA4BD00AA9834 /* ChatCollectionViewCell.swift in Sources */,
 				9D8544281BBA94AF00AA9834 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -402,6 +428,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.anywayanyday.awad.ExchangeAndReturnChat;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/ExchangeAndReturnChat/ExchangeAndReturnChat-Bridging-Header.h";
 			};
 			name = Debug;
 		};
@@ -413,6 +440,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.anywayanyday.awad.ExchangeAndReturnChat;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/ExchangeAndReturnChat/ExchangeAndReturnChat-Bridging-Header.h";
 			};
 			name = Release;
 		};
