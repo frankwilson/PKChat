@@ -70,7 +70,7 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
         edgesForExtendedLayout = UIRectEdge.None
         view.translatesAutoresizingMaskIntoConstraints = false
 
-        collectionView?.backgroundColor = UIColor(red:0.122, green:0.129, blue:0.137, alpha:1) /* #1f2123 */
+        collectionView?.backgroundColor = UIColor.iphoneDarkBackgroundColor()
 
         collectionView?.registerClass(ChatCollectionViewCell.self, forCellWithReuseIdentifier: chatCellIdentifier)
         collectionView?.registerClass(ChatDateAndTimeSectionHeaderView.self, forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: chatHeaderIdentifier)
@@ -180,8 +180,8 @@ private class ChatDateAndTimeSectionHeaderView: UICollectionReusableView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.setContentHuggingPriority(UILayoutPriorityDefaultLow, forAxis: .Horizontal)
         label.setContentHuggingPriority(UILayoutPriorityDefaultLow, forAxis: .Vertical)
-        label.textColor = UIColor(red:0.506, green:0.537, blue:0.596, alpha:1) /* #818998 awadColorIphoneMainGray */
-        label.font = UIFont(name: "HelveticaNeue-Light", size: 16.0)
+        label.textColor = UIColor.iphoneMainGrayColor()
+        label.font = UIFont.iphoneDefaultFont(16.0)
         self.addSubview(label)
         self.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("|[label]|", options: [.AlignAllCenterX], metrics: nil, views: ["label": label]))
         self.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|[label]|", options: [.AlignAllCenterY], metrics: nil, views: ["label": label]))

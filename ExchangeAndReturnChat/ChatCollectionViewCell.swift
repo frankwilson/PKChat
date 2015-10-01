@@ -41,7 +41,7 @@ class ChatCollectionViewCell: UICollectionViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.setContentHuggingPriority(UILayoutPriorityDefaultLow, forAxis: .Horizontal)
         label.setContentHuggingPriority(UILayoutPriorityDefaultLow, forAxis: .Vertical)
-        label.font = UIFont(name: "HelveticaNeue-Light", size: 16.0)
+        label.font = UIFont.iphoneDefaultFont(16.0)
         label.numberOfLines = 0
 
         return label

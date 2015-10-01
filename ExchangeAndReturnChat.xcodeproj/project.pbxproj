@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		9D76EFFB1BBD17CB0082F14E /* ChatSendMessagePanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D76EFFA1BBD17CB0082F14E /* ChatSendMessagePanel.swift */; settings = {ASSET_TAGS = (); }; };
 		9D76EFFD1BBD2E050082F14E /* ExchangeAndRefundViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D76EFFC1BBD2E050082F14E /* ExchangeAndRefundViewController.swift */; settings = {ASSET_TAGS = (); }; };
+		9D76F0001BBD3CC90082F14E /* UIColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D76EFFF1BBD3CC90082F14E /* UIColor.swift */; settings = {ASSET_TAGS = (); }; };
+		9D76F0021BBD906B0082F14E /* UIFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D76F0011BBD906B0082F14E /* UIFont.swift */; settings = {ASSET_TAGS = (); }; };
 		9D8544281BBA94AF00AA9834 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8544271BBA94AF00AA9834 /* AppDelegate.swift */; };
 		9D85442A1BBA94AF00AA9834 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8544291BBA94AF00AA9834 /* ViewController.swift */; };
 		9D85442D1BBA94AF00AA9834 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9D85442B1BBA94AF00AA9834 /* Main.storyboard */; };
@@ -41,6 +43,8 @@
 /* Begin PBXFileReference section */
 		9D76EFFA1BBD17CB0082F14E /* ChatSendMessagePanel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatSendMessagePanel.swift; sourceTree = "<group>"; };
 		9D76EFFC1BBD2E050082F14E /* ExchangeAndRefundViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExchangeAndRefundViewController.swift; sourceTree = "<group>"; };
+		9D76EFFF1BBD3CC90082F14E /* UIColor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIColor.swift; sourceTree = "<group>"; };
+		9D76F0011BBD906B0082F14E /* UIFont.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIFont.swift; sourceTree = "<group>"; };
 		9D8544241BBA94AF00AA9834 /* ExchangeAndReturnChat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ExchangeAndReturnChat.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9D8544271BBA94AF00AA9834 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		9D8544291BBA94AF00AA9834 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -94,6 +98,8 @@
 				9D76EFFA1BBD17CB0082F14E /* ChatSendMessagePanel.swift */,
 				9D8544551BBA968300AA9834 /* ChatViewController.swift */,
 				9D76EFFC1BBD2E050082F14E /* ExchangeAndRefundViewController.swift */,
+				9D76EFFF1BBD3CC90082F14E /* UIColor.swift */,
+				9D76F0011BBD906B0082F14E /* UIFont.swift */,
 			);
 			name = Chat;
 			sourceTree = "<group>";
@@ -297,8 +303,10 @@
 				9D76EFFB1BBD17CB0082F14E /* ChatSendMessagePanel.swift in Sources */,
 				9D8544561BBA968300AA9834 /* ChatViewController.swift in Sources */,
 				9D76EFFD1BBD2E050082F14E /* ExchangeAndRefundViewController.swift in Sources */,
+				9D76F0001BBD3CC90082F14E /* UIColor.swift in Sources */,
 				9D85445A1BBAA4BD00AA9834 /* ChatCollectionViewCell.swift in Sources */,
 				9D8544281BBA94AF00AA9834 /* AppDelegate.swift in Sources */,
+				9D76F0021BBD906B0082F14E /* UIFont.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -441,6 +449,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = ExchangeAndReturnChat/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.anywayanyday.awad.ExchangeAndReturnChat;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -453,6 +462,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = ExchangeAndReturnChat/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.anywayanyday.awad.ExchangeAndReturnChat;
 				PRODUCT_NAME = "$(TARGET_NAME)";
