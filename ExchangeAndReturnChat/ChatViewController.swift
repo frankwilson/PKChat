@@ -47,7 +47,7 @@ struct ChatMessage {
     }
 }
 
-class ExchangeAndReturnChatViewController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
+class ChatViewController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
 
     var data = [ChatMessage]()
 
@@ -67,14 +67,13 @@ class ExchangeAndReturnChatViewController: UICollectionViewController, UICollect
     }
 
     override func viewDidLoad() {
-        self.edgesForExtendedLayout = UIRectEdge.None
+        edgesForExtendedLayout = UIRectEdge.None
+        view.translatesAutoresizingMaskIntoConstraints = false
 
-        self.collectionView?.backgroundColor = UIColor(red:0.122, green:0.129, blue:0.137, alpha:1) /* #1f2123 */
+        collectionView?.backgroundColor = UIColor(red:0.122, green:0.129, blue:0.137, alpha:1) /* #1f2123 */
 
-        self.collectionView?.registerClass(ChatCollectionViewCell.self, forCellWithReuseIdentifier: chatCellIdentifier)
-//        self.collectionView?.registerClass(ChatCollectionViewCell.self, forCellWithReuseIdentifier: "ExchangeAndReturnChatOperatorBubble")
-//        self.collectionView?.registerClass(ChatCollectionViewCell.self, forCellWithReuseIdentifier: "ExchangeAndReturnChatClientBubble")
-        self.collectionView?.registerClass(ChatDateAndTimeSectionHeaderView.self, forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: chatHeaderIdentifier)
+        collectionView?.registerClass(ChatCollectionViewCell.self, forCellWithReuseIdentifier: chatCellIdentifier)
+        collectionView?.registerClass(ChatDateAndTimeSectionHeaderView.self, forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: chatHeaderIdentifier)
 
         layout.sectionInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
         layout.headerReferenceSize = CGSize(width: 100, height: 24)

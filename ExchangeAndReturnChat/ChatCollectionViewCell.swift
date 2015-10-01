@@ -161,6 +161,7 @@ class ChatCollectionViewCell: UICollectionViewCell {
 
         bubbleView.layer.mask = maskLayer
         bubbleView.layer.masksToBounds = true
+        bubbleView.layer.mask?.frame = bubbleView.layer.bounds
 
         self.updateConstraintsIfNeeded()
     }
