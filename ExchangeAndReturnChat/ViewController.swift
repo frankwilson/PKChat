@@ -13,6 +13,8 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+
+        UINavigationBar.appearance().barTintColor = UIColor.iphoneMainNavbarColor()
     }
 
     @IBAction func didTapButton(button: UIButton) {
@@ -26,7 +28,7 @@ class ViewController: UIViewController {
             ChatMessage(date: formatter.dateFromString("2015-08-14T13:13:42.32Z")!, text: "Конечно, у вас есть выбор! Взять дубовые, или пойти и выкоречевать ольху. Ведь все дубы пошли на плинтуса, а ольха нет!", requestStatus: .Answered, author: .Operator),
             ChatMessage(date: formatter.dateFromString("2015-08-14T13:18:33.39Z")!, text: "Ну и ладно. Оставайтесь при своих.", requestStatus: .Cancelled, author: .Client)
         ]
-        let request = ExchangeAndRefundRequest(creationDate: formatter.dateFromString("2015-08-14T13:09:17.39Z")!, completionDate: nil, requestType: .Refund, reason: .IllnessOrDeath, messages: data)
+        let request = ExchangeAndRefundRequest(orderNumber: "821658955", creationDate: formatter.dateFromString("2015-08-14T13:09:17.39Z")!, completionDate: nil, requestType: .Refund, reason: .IllnessOrDeath, messages: data)
 
         let controller = ExchangeAndRefundViewController(request: request)
 

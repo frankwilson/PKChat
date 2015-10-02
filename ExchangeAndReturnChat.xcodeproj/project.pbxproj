@@ -11,6 +11,8 @@
 		9D76EFFD1BBD2E050082F14E /* ExchangeAndRefundViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D76EFFC1BBD2E050082F14E /* ExchangeAndRefundViewController.swift */; settings = {ASSET_TAGS = (); }; };
 		9D76F0001BBD3CC90082F14E /* UIColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D76EFFF1BBD3CC90082F14E /* UIColor.swift */; settings = {ASSET_TAGS = (); }; };
 		9D76F0021BBD906B0082F14E /* UIFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D76F0011BBD906B0082F14E /* UIFont.swift */; settings = {ASSET_TAGS = (); }; };
+		9D76F0041BBD98B50082F14E /* SubtitleTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D76F0031BBD98B50082F14E /* SubtitleTitleView.swift */; settings = {ASSET_TAGS = (); }; };
+		9D76F0061BBE7BED0082F14E /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 9D76F0051BBE7BED0082F14E /* Localizable.strings */; settings = {ASSET_TAGS = (); }; };
 		9D8544281BBA94AF00AA9834 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8544271BBA94AF00AA9834 /* AppDelegate.swift */; };
 		9D85442A1BBA94AF00AA9834 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8544291BBA94AF00AA9834 /* ViewController.swift */; };
 		9D85442D1BBA94AF00AA9834 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9D85442B1BBA94AF00AA9834 /* Main.storyboard */; };
@@ -45,6 +47,8 @@
 		9D76EFFC1BBD2E050082F14E /* ExchangeAndRefundViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExchangeAndRefundViewController.swift; sourceTree = "<group>"; };
 		9D76EFFF1BBD3CC90082F14E /* UIColor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIColor.swift; sourceTree = "<group>"; };
 		9D76F0011BBD906B0082F14E /* UIFont.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIFont.swift; sourceTree = "<group>"; };
+		9D76F0031BBD98B50082F14E /* SubtitleTitleView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubtitleTitleView.swift; sourceTree = "<group>"; };
+		9D76F0051BBE7BED0082F14E /* Localizable.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
 		9D8544241BBA94AF00AA9834 /* ExchangeAndReturnChat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ExchangeAndReturnChat.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9D8544271BBA94AF00AA9834 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		9D8544291BBA94AF00AA9834 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -100,6 +104,7 @@
 				9D76EFFC1BBD2E050082F14E /* ExchangeAndRefundViewController.swift */,
 				9D76EFFF1BBD3CC90082F14E /* UIColor.swift */,
 				9D76F0011BBD906B0082F14E /* UIFont.swift */,
+				9D76F0031BBD98B50082F14E /* SubtitleTitleView.swift */,
 			);
 			name = Chat;
 			sourceTree = "<group>";
@@ -137,6 +142,7 @@
 				9D8544301BBA94AF00AA9834 /* LaunchScreen.storyboard */,
 				9D8544331BBA94AF00AA9834 /* Info.plist */,
 				9D85445C1BBAE87F00AA9834 /* ExchangeAndReturnChat-Bridging-Header.h */,
+				9D76F0051BBE7BED0082F14E /* Localizable.strings */,
 			);
 			path = ExchangeAndReturnChat;
 			sourceTree = "<group>";
@@ -272,6 +278,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9D8544321BBA94AF00AA9834 /* LaunchScreen.storyboard in Resources */,
+				9D76F0061BBE7BED0082F14E /* Localizable.strings in Resources */,
 				9D85442F1BBA94AF00AA9834 /* Assets.xcassets in Resources */,
 				9D85442D1BBA94AF00AA9834 /* Main.storyboard in Resources */,
 			);
@@ -304,6 +311,7 @@
 				9D8544561BBA968300AA9834 /* ChatViewController.swift in Sources */,
 				9D76EFFD1BBD2E050082F14E /* ExchangeAndRefundViewController.swift in Sources */,
 				9D76F0001BBD3CC90082F14E /* UIColor.swift in Sources */,
+				9D76F0041BBD98B50082F14E /* SubtitleTitleView.swift in Sources */,
 				9D85445A1BBAA4BD00AA9834 /* ChatCollectionViewCell.swift in Sources */,
 				9D8544281BBA94AF00AA9834 /* AppDelegate.swift in Sources */,
 				9D76F0021BBD906B0082F14E /* UIFont.swift in Sources */,

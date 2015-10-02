@@ -21,6 +21,7 @@ enum ExchangeAndRefundReason {
 }
 
 struct ExchangeAndRefundRequest {
+    let orderNumber: String
     let creationDate: NSDate
     let completionDate: NSDate?
     let requestType: ExchangeAndRefundRequestType
@@ -53,8 +54,19 @@ class ExchangeAndRefundViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        configureTitleView()
         configureBottomPanel()
         regsterKeyboardNotifications()
+    }
+
+    private func configureTitleView() {
+        let title = request.requestType == .Exchange ? NSLocalizedString("LocExchangeTickets", comment: "") : NSLocalizedString("LocReturnTickets", comment: "")
+        let subtitle = NSString.localizedStringWithFormat(NSLocalizedString("LocOrderN", comment: ""), request.orderNumber) as String
+        let titleView = SubtitleTitleView(title: title, subtitle: subtitle)
+        // http://stackoverflow.com/questions/15285698/
+        titleView.frame = CGRect(origin: CGPoint(x: 0, y: 0), size: titleView.systemLayoutSizeFittingSize(UILayoutFittingCompressedSize))
+
+        navigationItem.titleView = titleView
     }
 
     private func configureBottomPanel() {
@@ -63,7 +75,7 @@ class ExchangeAndRefundViewController: UIViewController {
         view.addSubview(chatController.view)
 
         view.addSubview(bottomPanel)
-        view.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("|[bottomPanel]|", options: [], metrics: nil, views: ["bottomPanel": bottomPanel]))
+        view.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("H:|[bottomPanel]|", options: [], metrics: nil, views: ["bottomPanel": bottomPanel]))
         view.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|[chat][bottomPanel]", options: [.AlignAllLeading, .AlignAllTrailing], metrics: nil, views: ["chat": chatController.view, "bottomPanel": bottomPanel]))
         bottomPanelBottomConstraint = NSLayoutConstraint(item: view, attribute: .Bottom, relatedBy: .Equal, toItem: bottomPanel, attribute: .Bottom, multiplier: 1.0, constant: 0.0)
         view.addConstraint(bottomPanelBottomConstraint)
