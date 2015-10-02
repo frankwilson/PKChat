@@ -10,6 +10,7 @@ import UIKit
 
 private let chatCellIdentifier = "ExchangeAndReturnChatBubble"
 private let chatHeaderIdentifier = "ExchangeAndReturnChatDateAndTime"
+private let chatFooterIdentifier = "ExchangeAndReturnChatFinishStatus"
 
 enum ChatElementType {
     case ClientBubble(date: NSDate, text: String?, url: NSURL?)
@@ -24,6 +25,20 @@ enum ChatRequestStatus: String {
     case Cancelled = "CANCELED"
     case Finished = "FINISHED"
 //    case Other
+
+    var description: String {
+        let statusCode: String
+        switch self {
+        case .Requested: statusCode = "LocExchangeRequested" // Could also be "LocExchangeInProcess"
+        case .Answered: statusCode = "LocExchangeAnswered"
+        case .AwaitingConfirmation: statusCode = "LocExchangeAwaitingConfirm"
+        case .Confirmed: statusCode = "LocExchangeConfirmed"
+        case .Cancelled: statusCode = "LocRequestCancelled"
+        case .Finished: statusCode = "LocRequestFinished"
+        }
+
+        return NSLocalizedString(statusCode, comment: "Exchange & Refund request status description")
+    }
 }
 
 enum MessageAuthorType {
@@ -45,6 +60,17 @@ struct ChatMessage {
         self.requestStatus = requestStatus
         self.authorType = author
     }
+
+    func rowsCount() -> Int {
+        var count = 0
+        if imageUrl != nil {
+            count++
+        }
+        if text != nil {
+            count++
+        }
+        return count
+    }
 }
 
 class ChatViewController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
@@ -52,11 +78,6 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
     var data = [ChatMessage]()
 
     private let layout = UICollectionViewFlowLayout()
-    private let dateFormatter: NSDateFormatter = {
-        let formatter = NSDateFormatter()
-        formatter.dateFormat = "dd.MM.yyyy, HH:mm"
-        return formatter
-    }()
 
     init() {
         super.init(collectionViewLayout: layout)
@@ -70,12 +91,17 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
         edgesForExtendedLayout = UIRectEdge.None
         view.translatesAutoresizingMaskIntoConstraints = false
 
-        collectionView?.backgroundColor = UIColor.iphoneDarkBackgroundColor()
+        if let c = collectionView {
+            c.backgroundColor = UIColor.iphoneDarkBackgroundColor()
 
-        collectionView?.registerClass(ChatCollectionViewCell.self, forCellWithReuseIdentifier: chatCellIdentifier)
-        collectionView?.registerClass(ChatDateAndTimeSectionHeaderView.self, forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: chatHeaderIdentifier)
+            c.contentInset = UIEdgeInsets(top: 10, left: 0, bottom: 10, right: 0)
 
-        layout.sectionInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+            c.registerClass(ChatCollectionViewCell.self, forCellWithReuseIdentifier: chatCellIdentifier)
+            c.registerClass(ChatDateAndTimeReusableView.self, forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: chatHeaderIdentifier)
+            c.registerClass(ChatFinishedReusableView.self, forSupplementaryViewOfKind: UICollectionElementKindSectionFooter, withReuseIdentifier: chatFooterIdentifier)
+        }
+
+        layout.sectionInset = UIEdgeInsets(top: 10, left: 0, bottom: 10, right: 0)
         layout.headerReferenceSize = CGSize(width: 100, height: 24)
     }
 
@@ -88,11 +114,8 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
             return 0
         }
         let message = data[section]
-        if message.text != nil && message.imageUrl != nil {
-            return 2
-        } else {
-            return 1
-        }
+
+        return message.rowsCount()
     }
 
     func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize {
@@ -131,7 +154,7 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
             } else if let text =  message.text {
                 cell.configure(text, position: position)
             }
-        } else if let text =  message.text {
+        } else if let text = message.text {
             // Duplicated call! Rid of it if possible
             cell.configure(text, position: position)
         }
@@ -139,17 +162,37 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
         return cell
     }
 
+    func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
+        let message = data[section]
+
+        if message.requestStatus == .Cancelled || message.requestStatus == .Finished {
+            return CGSize(width: 200, height: 24)
+        } else {
+            return CGSizeZero
+        }
+    }
+
     override func collectionView(collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, atIndexPath indexPath: NSIndexPath) -> UICollectionReusableView {
-        if (kind == UICollectionElementKindSectionHeader) {
-            let view = collectionView.dequeueReusableSupplementaryViewOfKind(kind, withReuseIdentifier: chatHeaderIdentifier, forIndexPath: indexPath) as! ChatDateAndTimeSectionHeaderView
-            view.backgroundColor = self.collectionView?.backgroundColor
+        if kind == UICollectionElementKindSectionHeader {
             let message = data[indexPath.section]
-            view.label.text = dateFormatter.stringFromDate(message.date)
+
+            let view = collectionView.dequeueReusableSupplementaryViewOfKind(kind, withReuseIdentifier: chatHeaderIdentifier, forIndexPath: indexPath) as! ChatDateAndTimeReusableView
+            view.backgroundColor = self.collectionView?.backgroundColor
+            view.configure(date: message.date)
 
             return view
-        } else {
-            return super.collectionView(collectionView, viewForSupplementaryElementOfKind: kind, atIndexPath: indexPath)
+        } else if kind == UICollectionElementKindSectionFooter {
+            let message = data[indexPath.section]
+
+            if message.requestStatus == .Cancelled || message.requestStatus == .Finished {
+                let view = collectionView.dequeueReusableSupplementaryViewOfKind(kind, withReuseIdentifier: chatFooterIdentifier, forIndexPath: indexPath) as! ChatFinishedReusableView
+                view.backgroundColor = self.collectionView?.backgroundColor
+                view.configure(statusDescription: message.requestStatus.description, date: message.date, showUnderline: false)
+
+                return view
+            }
         }
+        return UICollectionReusableView()
     }
 
     func maxBubbleWidth() -> CGFloat {
@@ -161,9 +204,26 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
 
 }
 
-private class ChatDateAndTimeSectionHeaderView: UICollectionReusableView {
+private class ChatDateAndTimeReusableView: UICollectionReusableView {
 
-    private var label = UILabel()
+    private static let dateFormatter: NSDateFormatter = {
+        let formatter = NSDateFormatter()
+        formatter.dateFormat = "dd.MM.yyyy, HH:mm"
+        return formatter
+    }()
+
+    private var label: UILabel = {
+        let label = UILabel()
+
+        label.textAlignment = .Center
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.setContentHuggingPriority(UILayoutPriorityDefaultLow, forAxis: .Horizontal)
+        label.setContentHuggingPriority(UILayoutPriorityDefaultLow, forAxis: .Vertical)
+        label.textColor = UIColor.iphoneMainGrayColor()
+        label.font = UIFont.iphoneDefaultFont(16.0)
+
+        return label
+    }()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -175,16 +235,80 @@ private class ChatDateAndTimeSectionHeaderView: UICollectionReusableView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    func configure(date date: NSDate) {
+        label.text = "\(ChatDateAndTimeReusableView.dateFormatter.stringFromDate(date))"
+    }
+
     private func initializeView() {
+
+        addSubview(label)
+        addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("H:|[label]|", options: [.AlignAllCenterX], metrics: nil, views: ["label": label]))
+        addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|[label]|", options: [.AlignAllCenterY], metrics: nil, views: ["label": label]))
+    }
+
+}
+
+private class ChatFinishedReusableView: UICollectionReusableView {
+
+    private static let dateFormatter: NSDateFormatter = {
+        let dateFormatter = NSDateFormatter()
+        dateFormatter.dateStyle = .LongStyle
+        dateFormatter.timeStyle = .NoStyle
+        return dateFormatter
+    }()
+
+    private var label: UILabel = {
+        let label = UILabel()
+
         label.textAlignment = .Center
         label.translatesAutoresizingMaskIntoConstraints = false
         label.setContentHuggingPriority(UILayoutPriorityDefaultLow, forAxis: .Horizontal)
         label.setContentHuggingPriority(UILayoutPriorityDefaultLow, forAxis: .Vertical)
         label.textColor = UIColor.iphoneMainGrayColor()
-        label.font = UIFont.iphoneDefaultFont(16.0)
-        self.addSubview(label)
-        self.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("|[label]|", options: [.AlignAllCenterX], metrics: nil, views: ["label": label]))
-        self.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|[label]|", options: [.AlignAllCenterY], metrics: nil, views: ["label": label]))
+        label.font = UIFont.iphoneRegularFont(14.0)
+
+        return label
+    }()
+    lazy private var separator: UIView = {
+        let separator = UIView()
+
+        separator.translatesAutoresizingMaskIntoConstraints = false
+        separator.backgroundColor = UIColor.iphoneTroutColor()
+
+        return separator
+    }()
+    private var verticalConstraints = [NSLayoutConstraint]()
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+
+        initializeView()
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func prepareForReuse() {
+        separator.removeFromSuperview()
+    }
+
+    func configure(statusDescription statusText: String, date: NSDate, showUnderline: Bool) {
+        label.text = "\(ChatFinishedReusableView.dateFormatter.stringFromDate(date)) \(statusText)"
+
+        if showUnderline {
+            addSubview(separator)
+            addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("H:|[separator]|", options: [], metrics: nil, views: ["separator": separator]))
+            addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|[label]-3-[separator(1)]|", options: [], metrics: nil, views: ["label": label, "separator": separator]))
+        } else {
+            addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|[label]|", options: [], metrics: nil, views: ["label": label]))
+        }
+    }
+
+    private func initializeView() {
+
+        addSubview(label)
+        addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("H:|[label]|", options: [], metrics: nil, views: ["label": label]))
     }
 
 }

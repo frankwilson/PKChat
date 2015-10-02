@@ -8,4 +8,6 @@
 
 "LocExchangeTickets" = "Обмен билетов";
 "LocReturnTickets" = "Возврат билетов";
-"LocOrderN" = "Заказ № %@"; // Заказ
+"LocOrderN" = "Заказ № %@";
+"LocRequestFinished" = "Запрос выполнен";
+"LocRequestCancelled" = "Запрос отменен";
