@@ -23,13 +23,15 @@ private let operatorTextColor = UIColor.whiteColor()
 private let clientBubbleTextInsets = UIEdgeInsets(top: 5.0, left: 10.0, bottom: 5.0, right: 15.0)
 private let operatorBubbleTextInsets = UIEdgeInsets(top: 5.0, left: 15.0, bottom: 5.0, right: 10.0)
 
+private let documentBubbleTextLeftInset: CGFloat = 28
+
 class ChatCollectionViewCell: UICollectionViewCell {
 
     var maxBubbleWidth: CGFloat = 0.0
 
     private var position = ChatElementPosition.Left
     private var text: String?
-    private var imageUrl: NSURL?
+    private var image: UIImage?
 
     private var bubbleLeagingConstraint: NSLayoutConstraint!
     private var bubbleWidthConstraint: NSLayoutConstraint!
@@ -43,6 +45,7 @@ class ChatCollectionViewCell: UICollectionViewCell {
         label.setContentHuggingPriority(UILayoutPriorityDefaultLow, forAxis: .Vertical)
         label.font = UIFont.iphoneDefaultFont(16.0)
         label.numberOfLines = 0
+        label.lineBreakMode = .ByWordWrapping
 
         return label
     }()
@@ -53,7 +56,7 @@ class ChatCollectionViewCell: UICollectionViewCell {
 
         return imageView
     }()
-
+    private var documentImageView: UIImageView?
     private let bubbleView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -86,14 +89,22 @@ class ChatCollectionViewCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    class func sizeWithText(text: String, maxWidth: CGFloat) -> CGSize {
+    class func sizeWithText(text: String, maxWidth: CGFloat, documentStyle: Bool) -> CGSize {
         // Short name
         let insets = clientBubbleTextInsets
-        let maxTextWidth = maxWidth - insets.left - insets.right
+        let maxTextWidth = maxWidth - insets.left - insets.right - (documentStyle ? documentBubbleTextLeftInset : 0.0)
 
-        let textSize = NSString(string: text).awad_boundsWithFont(UIFont(name: "HelveticaNeue-Light", size: 16.0), maxWidth: maxTextWidth)
+        let textSize = NSString(string: text).awad_boundsWithFont(UIFont.iphoneDefaultFont(16.0), maxWidth: maxTextWidth, useWordWrap: !documentStyle)
 
-        return CGSize(width: ceil(textSize.width + insets.left + insets.right), height: ceil(textSize.height + insets.top + insets.bottom))
+        var horizontalInsets = insets.left + insets.right
+        if documentStyle {
+            horizontalInsets += documentBubbleTextLeftInset
+        }
+        var verticalInsets = insets.top + insets.bottom
+        if documentStyle {
+            verticalInsets *= 2
+        }
+        return CGSize(width: ceil(textSize.width + horizontalInsets), height: ceil(textSize.height + verticalInsets))
     }
 
     override func prepareForReuse() {
@@ -102,17 +113,17 @@ class ChatCollectionViewCell: UICollectionViewCell {
         imageView.image = nil
     }
 
-    func configure(text: String, position: ChatElementPosition) {
+    func configure(text text: String, position: ChatElementPosition, documentStyle: Bool) {
         self.text = text
-        self.imageUrl = nil
+        self.image = nil
         self.position = position
 
-        configureView()
+        configureView(documentStyle)
     }
 
-    func configure(imageUrl: NSURL, position: ChatElementPosition) {
+    func configure(image image: UIImage, position: ChatElementPosition) {
         self.text = nil
-        self.imageUrl = imageUrl
+        self.image = image
         self.position = position
 
         configureView()
@@ -125,18 +136,25 @@ class ChatCollectionViewCell: UICollectionViewCell {
         bubbleView.layer.mask?.frame = bubbleView.layer.bounds
     }
 
-    private func configureView() {
+    private func configureView(documentStyle: Bool = false) {
 
         let bubbleWidth: CGFloat
         if let text = self.text {
             textLabel.text = text
-            bubbleWidth = ChatCollectionViewCell.sizeWithText(text, maxWidth: maxBubbleWidth).width
+            bubbleWidth = ChatCollectionViewCell.sizeWithText(text, maxWidth: maxBubbleWidth, documentStyle: documentStyle).width
             bubbleView.backgroundColor = position == .Left ? operatorBubbleColor : clientBubbleColor
             textLabel.backgroundColor = bubbleView.backgroundColor
             textLabel.textColor = position == .Left ? operatorTextColor : clientTextColor
-        } else if let imageUrl = self.imageUrl {
-            // TODO: Replace with async image loading
-            imageView.image = UIImage(data: NSData(contentsOfURL: imageUrl)!)
+            if documentStyle {
+                textLabel.lineBreakMode = .ByTruncatingTail
+                textLabel.textColor = textLabel.textColor.colorWithAlphaComponent(0.6)
+            } else {
+                textLabel.lineBreakMode = .ByWordWrapping
+            }
+            textLabel.numberOfLines = documentStyle ? 1 : 0
+            displayDocumentImage(documentStyle)
+        } else if let image = self.image {
+            imageView.image = image
             bubbleWidth = ceil(bounds.size.width / 2)
         } else {
             return
@@ -146,7 +164,7 @@ class ChatCollectionViewCell: UICollectionViewCell {
 
         bubbleWidthConstraint.constant = bubbleWidth
         bubbleLeagingConstraint.constant = position == .Left ? 0 : offset
-        bubbleLabelLeadingConstraint.constant = position == .Left ? 15.0 : 10.0
+        bubbleLabelLeadingConstraint.constant = (position == .Left ? 15.0 : 10.0) + (documentStyle ? documentBubbleTextLeftInset : 0.0)
         bubbleLabelTrailingConstraint.constant = position == .Right ? 15.0 : 10.0
 
         let imageName = position == .Left ? "ChatBubble – Operator" : "ChatBubble – Client"
@@ -165,4 +183,25 @@ class ChatCollectionViewCell: UICollectionViewCell {
 
         self.updateConstraintsIfNeeded()
     }
+
+    func displayDocumentImage(display: Bool) {
+
+        documentImageView?.removeFromSuperview()
+        if display {
+            let imageView: UIImageView
+            if let image = documentImageView {
+                imageView = image
+            } else  {
+                imageView = UIImageView(image: UIImage(named: "Chat Document Icon")?.imageWithRenderingMode(.AlwaysTemplate));
+                imageView.tintColor = textLabel.textColor
+                imageView.translatesAutoresizingMaskIntoConstraints = false
+                documentImageView = imageView
+            }
+            let leftOffset = (position == .Left ? 15.0 : 10.0)
+            bubbleView.addSubview(imageView)
+            bubbleView.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("H:|-left-[image]", options: [], metrics: ["left": leftOffset], views: ["image": imageView]))
+            bubbleView.addConstraint(NSLayoutConstraint(item: imageView, attribute: .CenterY, relatedBy: .Equal, toItem: bubbleView, attribute: .CenterY, multiplier: 1.0, constant: 0.0))
+        }
+    }
+
 }

@@ -47,7 +47,8 @@ struct ExchangeAndRefundRequest {
     let reason: ExchangeAndRefundReason
 
 //    let ticketIds: [String]?
-//    let fileIds: [String]?
+    /// List of File IDs by Chat Message ID
+    let files: [Int: String]
     let messages: [ChatMessage]
 
     enum ParseError: ErrorType, CustomStringConvertible {
@@ -108,6 +109,8 @@ struct ExchangeAndRefundRequest {
         self.reason = reason
 
         self.messages = messages
+
+        self.files = [Int:String]()
     }
 }
 

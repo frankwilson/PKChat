@@ -55,17 +55,24 @@ enum MessageAuthorType {
     case Operator
 }
 
+enum MessageFile {
+    case Image(image: UIImage)
+    case OtherFile(fileName: String)
+}
+
 struct ChatMessage {
+    let id: Int
     let date: NSDate
     let text: String?
-    let imageUrl: NSURL?
+    let files: [MessageFile]
     let requestStatus: ChatRequestStatus
     let authorType: MessageAuthorType
 
-    init(date: NSDate, text: String? = nil, imageUrl: NSURL? = nil, requestStatus: ChatRequestStatus, author: MessageAuthorType) {
+    init(id: Int, date: NSDate, text: String? = nil, files: [MessageFile]? = nil, requestStatus: ChatRequestStatus, author: MessageAuthorType) {
+        self.id = id
         self.date = date
         self.text = text
-        self.imageUrl = imageUrl
+        self.files = files ?? [MessageFile]()
         self.requestStatus = requestStatus
         self.authorType = author
     }
@@ -106,15 +113,6 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
         layout.headerReferenceSize = CGSize(width: 100, height: 24)
     }
 
-    override func viewWillAppear(animated: Bool) {
-        super.viewWillAppear(animated)
-
-        // Scroll to the very bottom
-        let sectionIndex = numberOfSectionsInCollectionView(collectionView!) - 1
-        let lastIndexPath = NSIndexPath(forRow: collectionView(collectionView!, numberOfItemsInSection: sectionIndex) - 1, inSection: sectionIndex)
-
-        collectionView!.scrollToItemAtIndexPath(lastIndexPath, atScrollPosition: .Bottom, animated: false)
-    }
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
 
@@ -122,7 +120,7 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
         let sectionIndex = numberOfSectionsInCollectionView(collectionView!) - 1
         let lastIndexPath = NSIndexPath(forRow: collectionView(collectionView!, numberOfItemsInSection: sectionIndex) - 1, inSection: sectionIndex)
 
-        collectionView!.scrollToItemAtIndexPath(lastIndexPath, atScrollPosition: .Bottom, animated: false)
+        collectionView!.scrollToItemAtIndexPath(lastIndexPath, atScrollPosition: .Bottom, animated: true)
     }
 
     override func numberOfSectionsInCollectionView(collectionView: UICollectionView) -> Int {
@@ -134,10 +132,7 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
         }
         let message = request.messages[section]
 
-        var count = 0
-        if message.imageUrl != nil {
-            count++
-        }
+        var count = message.files.count
         if message.text != nil {
             count++
         }
@@ -150,10 +145,12 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
 
         // Calculate a cell height
         let message = request.messages[indexPath.section]
-        if indexPath.row == 0 && message.imageUrl != nil {
-            cellHeight = ceil(cellWidth * 0.5 * 0.66) // 2/3 of a half of the width. Bubble width should be a half of the cell width
-        } else if let text = message.text {
-            cellHeight = ChatCollectionViewCell.sizeWithText(text, maxWidth: maxBubbleWidth()).height
+        if indexPath.row == message.files.count, let text = message.text {
+            cellHeight = ChatCollectionViewCell.sizeWithText(text, maxWidth: maxBubbleWidth(), documentStyle: false).height
+        } else if case .OtherFile(let fileName) = message.files[indexPath.row] {
+            cellHeight = ChatCollectionViewCell.sizeWithText(fileName, maxWidth: maxBubbleWidth(), documentStyle: true).height
+        } else if case .Image(let image) = message.files[indexPath.row] {
+            cellHeight = (cellWidth * 0.5) / image.size.width * image.size.height
         }
 
         return CGSize(width: cellWidth, height: CGFloat(cellHeight))
@@ -174,15 +171,12 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
             position = .Left
         }
 
-        if indexPath.row == 0 {
-            if let imageUrl = message.imageUrl {
-                cell.configure(imageUrl, position: position)
-            } else if let text =  message.text {
-                cell.configure(text, position: position)
-            }
-        } else if let text = message.text {
-            // Duplicated call! Rid of it if possible
-            cell.configure(text, position: position)
+        if indexPath.row == message.files.count, let text = message.text {
+            cell.configure(text: text, position: position, documentStyle: false)
+        } else if case .OtherFile(let fileName) = message.files[indexPath.row] {
+            cell.configure(text: fileName, position: position, documentStyle: true)
+        } else if case .Image(let image) = message.files[indexPath.row] {
+            cell.configure(image: image, position: position)
         }
 
         return cell
