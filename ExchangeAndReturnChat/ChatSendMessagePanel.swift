@@ -11,7 +11,99 @@ import UIKit
 private let minTextViewHeight: CGFloat = 28.0
 private let maxTextViewHeight: CGFloat = 152.0 // 7 lines
 
-class ChatSendMessagePanel: UIView, UITextViewDelegate {
+enum ChatSendMessagePanelState {
+    case Normal
+    case Sending
+    case Sent
+    case Failed
+    case Disabled
+    case AwaitingReview
+    case InReview
+    case Confirmed
+    case Finished
+    case Cancelled
+}
+
+class ChatSendMessagePanel: UIView {
+
+    var state = ChatSendMessagePanelState.Normal {
+        didSet {
+            updateWithNewState()
+        }
+    }
+    private let statusLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.iphoneDefaultFont(17.0)
+        label.textColor = UIColor.iphoneMainGrayColor()
+        label.translatesAutoresizingMaskIntoConstraints = false
+
+        return label
+    }()
+    private let composeView = ComposeView()
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+
+        initializeView()
+    }
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    private func initializeView() {
+        backgroundColor = UIColor.iphoneMainNavbarColor()
+        translatesAutoresizingMaskIntoConstraints = false
+
+        let topLineView = UIView()
+        topLineView.backgroundColor = UIColor.iphoneTroutColor()
+        topLineView.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(topLineView)
+        addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("|[line]|", options: [], metrics: nil, views: ["line": topLineView]))
+        addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|[line(1)]", options: [], metrics: nil, views: ["line": topLineView]))
+
+        addSubview(composeView)
+        addSubview(statusLabel)
+
+        addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("H:|[composeView]|", options: [], metrics: nil, views: ["composeView": composeView]))
+        addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|[composeView]|", options: [], metrics: nil, views: ["composeView": composeView]))
+
+        addConstraint(NSLayoutConstraint(item: statusLabel, attribute: .CenterX, relatedBy: .Equal, toItem: self, attribute: .CenterX, multiplier: 1.0, constant: 0.0))
+        addConstraint(NSLayoutConstraint(item: statusLabel, attribute: .CenterY, relatedBy: .Equal, toItem: self, attribute: .CenterY, multiplier: 1.0, constant: 0.0))
+    }
+
+    private func updateWithNewState() {
+        statusLabel.hidden = false
+        composeView.hidden = true
+
+        switch state {
+        case .Normal:
+            statusLabel.hidden = true
+            composeView.hidden = false
+        case .Sending:
+            statusLabel.text = NSLocalizedString("LocExchangeSendingMsg", comment: "")
+        case .Sent:
+            statusLabel.text = NSLocalizedString("LocExchangeMsgSent", comment: "")
+        case .Failed:
+            statusLabel.text = NSLocalizedString("LocExchangeTryLater", comment: "")
+        case .Disabled:
+            statusLabel.hidden = true
+            composeView.hidden = false
+        case .AwaitingReview:
+            statusLabel.text = NSLocalizedString("LocExchangeRequested", comment: "Ожидает рассмотрения оператором")
+        case .InReview:
+            statusLabel.text = NSLocalizedString("LocExchangeInProcess", comment: "Рассматривается оператором")
+        case .Confirmed:
+            statusLabel.text = NSLocalizedString("LocExchangeConfirmed", comment: "Условия подтверждены")
+        case .Finished:
+            statusLabel.text = NSLocalizedString("LocRequestFinished", comment: "Запрос выполнен")
+        case .Cancelled:
+            statusLabel.text = NSLocalizedString("LocRequestCancelled", comment: "Запрос отменен")
+        }
+    }
+
+}
+
+private class ComposeView: UIView, UITextViewDelegate {
 
     private let textView: UITextView = {
         let textView = UITextView()
@@ -72,13 +164,6 @@ class ChatSendMessagePanel: UIView, UITextViewDelegate {
     private func initializeView() {
         backgroundColor = UIColor.iphoneMainNavbarColor()
         translatesAutoresizingMaskIntoConstraints = false
-
-        let topLineView = UIView()
-        topLineView.backgroundColor = UIColor.iphoneTroutColor()
-        topLineView.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(topLineView)
-        addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("|[line]|", options: [], metrics: nil, views: ["line": topLineView]))
-        addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|[line(1)]", options: [], metrics: nil, views: ["line": topLineView]))
 
         addSubview(attachButton)
         addSubview(textView)

@@ -12,29 +12,38 @@ private let chatCellIdentifier = "ExchangeAndReturnChatBubble"
 private let chatHeaderIdentifier = "ExchangeAndReturnChatDateAndTime"
 private let chatFooterIdentifier = "ExchangeAndReturnChatFinishStatus"
 
-enum ChatElementType {
-    case ClientBubble(date: NSDate, text: String?, url: NSURL?)
-    case OperatorBubble(date: NSDate, text: String?, url: NSURL?)
-}
+enum ChatState {
+    case Requested
+    case InProcess
+    case Answered
+    case AwaitingConfirmation
+    case Confirmed
+    case Cancelled
+    case Finished
+    case Other
 
-enum ChatRequestStatus: String {
-    case Requested = "REQUESTED"
-    case Answered = "ANSWERED"
-    case AwaitingConfirmation = "AWAITING_CONFIRM"
-    case Confirmed = "CONFIRMED"
-    case Cancelled = "CANCELED"
-    case Finished = "FINISHED"
-//    case Other
+    init(requestStatus: ChatRequestStatus, operatorName: String?) {
+        switch requestStatus {
+        case .Requested: self = (operatorName == nil ? .Requested : .InProcess)
+        case .Answered: self = .Answered
+        case .AwaitingConfirmation: self = .AwaitingConfirmation
+        case .Confirmed: self = .Confirmed
+        case .Cancelled: self = .Cancelled
+        case .Finished: self = .Finished
+        }
+    }
 
     var description: String {
         let statusCode: String
         switch self {
-        case .Requested: statusCode = "LocExchangeRequested" // Could also be "LocExchangeInProcess"
+        case .Requested: statusCode = "LocExchangeRequested"
+        case .InProcess: statusCode = "LocExchangeInProcess"
         case .Answered: statusCode = "LocExchangeAnswered"
         case .AwaitingConfirmation: statusCode = "LocExchangeAwaitingConfirm"
         case .Confirmed: statusCode = "LocExchangeConfirmed"
         case .Cancelled: statusCode = "LocRequestCancelled"
         case .Finished: statusCode = "LocRequestFinished"
+        case .Other: statusCode = "LocOther"
         }
 
         return NSLocalizedString(statusCode, comment: "Exchange & Refund request status description")
@@ -60,26 +69,18 @@ struct ChatMessage {
         self.requestStatus = requestStatus
         self.authorType = author
     }
-
-    func rowsCount() -> Int {
-        var count = 0
-        if imageUrl != nil {
-            count++
-        }
-        if text != nil {
-            count++
-        }
-        return count
-    }
 }
 
 class ChatViewController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
 
-    var data = [ChatMessage]()
+    var request: ExchangeAndRefundRequest
+
+//    private var state = ChatState.Requested
 
     private let layout = UICollectionViewFlowLayout()
 
-    init() {
+    init(request: ExchangeAndRefundRequest) {
+        self.request = request
         super.init(collectionViewLayout: layout)
     }
 
@@ -105,17 +106,42 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
         layout.headerReferenceSize = CGSize(width: 100, height: 24)
     }
 
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+
+        // Scroll to the very bottom
+        let sectionIndex = numberOfSectionsInCollectionView(collectionView!) - 1
+        let lastIndexPath = NSIndexPath(forRow: collectionView(collectionView!, numberOfItemsInSection: sectionIndex) - 1, inSection: sectionIndex)
+
+        collectionView!.scrollToItemAtIndexPath(lastIndexPath, atScrollPosition: .Bottom, animated: false)
+    }
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+
+        // Scroll to the very bottom
+        let sectionIndex = numberOfSectionsInCollectionView(collectionView!) - 1
+        let lastIndexPath = NSIndexPath(forRow: collectionView(collectionView!, numberOfItemsInSection: sectionIndex) - 1, inSection: sectionIndex)
+
+        collectionView!.scrollToItemAtIndexPath(lastIndexPath, atScrollPosition: .Bottom, animated: false)
+    }
+
     override func numberOfSectionsInCollectionView(collectionView: UICollectionView) -> Int {
-        return data.count
+        return request.messages.count
     }
     override func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        // If section has image and a text
-        guard data.count > section else {
+        guard request.messages.count > section else {
             return 0
         }
-        let message = data[section]
+        let message = request.messages[section]
 
-        return message.rowsCount()
+        var count = 0
+        if message.imageUrl != nil {
+            count++
+        }
+        if message.text != nil {
+            count++
+        }
+        return count
     }
 
     func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize {
@@ -123,7 +149,7 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
         let cellWidth = bubbleCellWidth()
 
         // Calculate a cell height
-        let message = data[indexPath.section]
+        let message = request.messages[indexPath.section]
         if indexPath.row == 0 && message.imageUrl != nil {
             cellHeight = ceil(cellWidth * 0.5 * 0.66) // 2/3 of a half of the width. Bubble width should be a half of the cell width
         } else if let text = message.text {
@@ -139,7 +165,7 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
         cell.maxBubbleWidth = maxBubbleWidth()
         cell.backgroundColor = self.collectionView?.backgroundColor
 
-        let message = data[indexPath.section]
+        let message = request.messages[indexPath.section]
         let position: ChatElementPosition
         switch message.authorType {
         case .Client:
@@ -163,7 +189,7 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
     }
 
     func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
-        let message = data[section]
+        let message = request.messages[section]
 
         if message.requestStatus == .Cancelled || message.requestStatus == .Finished {
             return CGSize(width: 200, height: 24)
@@ -174,7 +200,7 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
 
     override func collectionView(collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, atIndexPath indexPath: NSIndexPath) -> UICollectionReusableView {
         if kind == UICollectionElementKindSectionHeader {
-            let message = data[indexPath.section]
+            let message = request.messages[indexPath.section]
 
             let view = collectionView.dequeueReusableSupplementaryViewOfKind(kind, withReuseIdentifier: chatHeaderIdentifier, forIndexPath: indexPath) as! ChatDateAndTimeReusableView
             view.backgroundColor = self.collectionView?.backgroundColor
@@ -182,12 +208,12 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
 
             return view
         } else if kind == UICollectionElementKindSectionFooter {
-            let message = data[indexPath.section]
+            let message = request.messages[indexPath.section]
 
             if message.requestStatus == .Cancelled || message.requestStatus == .Finished {
                 let view = collectionView.dequeueReusableSupplementaryViewOfKind(kind, withReuseIdentifier: chatFooterIdentifier, forIndexPath: indexPath) as! ChatFinishedReusableView
                 view.backgroundColor = self.collectionView?.backgroundColor
-                view.configure(statusDescription: message.requestStatus.description, date: message.date, showUnderline: false)
+                view.configure(statusDescription: ChatState(requestStatus: message.requestStatus, operatorName: request.operatorName).description, date: message.date, showUnderline: false)
 
                 return view
             }

@@ -23,6 +23,7 @@
 		9D8544561BBA968300AA9834 /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8544551BBA968300AA9834 /* ChatViewController.swift */; settings = {ASSET_TAGS = (); }; };
 		9D85445A1BBAA4BD00AA9834 /* ChatCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8544591BBAA4BD00AA9834 /* ChatCollectionViewCell.swift */; settings = {ASSET_TAGS = (); }; };
 		9D8544601BBC113000AA9834 /* NSString+Awad.m in Sources */ = {isa = PBXBuildFile; fileRef = 9D85445F1BBC113000AA9834 /* NSString+Awad.m */; settings = {ASSET_TAGS = (); }; };
+		9DD9C1F31BC27827007D2BAE /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DD9C1F21BC27827007D2BAE /* Utils.swift */; settings = {ASSET_TAGS = (); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -68,6 +69,7 @@
 		9D85445C1BBAE87F00AA9834 /* ExchangeAndReturnChat-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ExchangeAndReturnChat-Bridging-Header.h"; sourceTree = "<group>"; };
 		9D85445E1BBC113000AA9834 /* NSString+Awad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Awad.h"; sourceTree = "<group>"; };
 		9D85445F1BBC113000AA9834 /* NSString+Awad.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+Awad.m"; sourceTree = "<group>"; };
+		9DD9C1F21BC27827007D2BAE /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -105,6 +107,7 @@
 				9D76EFFF1BBD3CC90082F14E /* UIColor.swift */,
 				9D76F0011BBD906B0082F14E /* UIFont.swift */,
 				9D76F0031BBD98B50082F14E /* SubtitleTitleView.swift */,
+				9DD9C1F21BC27827007D2BAE /* Utils.swift */,
 			);
 			name = Chat;
 			sourceTree = "<group>";
@@ -312,6 +315,7 @@
 				9D76EFFD1BBD2E050082F14E /* ExchangeAndRefundViewController.swift in Sources */,
 				9D76F0001BBD3CC90082F14E /* UIColor.swift in Sources */,
 				9D76F0041BBD98B50082F14E /* SubtitleTitleView.swift in Sources */,
+				9DD9C1F31BC27827007D2BAE /* Utils.swift in Sources */,
 				9D85445A1BBAA4BD00AA9834 /* ChatCollectionViewCell.swift in Sources */,
 				9D8544281BBA94AF00AA9834 /* AppDelegate.swift in Sources */,
 				9D76F0021BBD906B0082F14E /* UIFont.swift in Sources */,
