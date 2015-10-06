@@ -1,0 +1,17 @@
+/* 
+  Localizable.strings
+  ExchangeAndReturnChat
+
+  Created by Pavel Kazantsev on 02/10/15.
+  Copyright © 2015 Anywayanyday. All rights reserved.
+*/
+
+"LocExchangeTickets" = "Ticketsaustausch";
+"LocReturnTickets" = "Ticketserstattung";
+"LocOrderN" = "Bestellung № %@";
+"LocRequestFinished" = "Die Anfrage ist erledigt";
+"LocRequestCancelled" = "Die Anfrage ist annuliert";
+
+"LocExchangeRequested" = "Die Anfrage ist zu bearbeiten";
+"LocExchangeInProcess" = "Die Anfrage ist in Bearbeitung";
+"LocExchangeConfirmed" = "Die Bedingungen sind bestätigt";

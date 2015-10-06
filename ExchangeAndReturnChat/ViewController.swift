@@ -29,7 +29,60 @@ class ViewController: UIViewController {
             ChatMessage(id: 808367, date: formatter.dateFromString("2015-08-14T13:10:57.67Z")!, text: "Нет, у нас только дубовые!", files: [.OtherFile(fileName: "Frak you, Spielberg!.docx")], requestStatus: .Answered, author: .Operator),
             ChatMessage(id: 808368, date: formatter.dateFromString("2015-08-14T13:11:43.03Z")!, text: "Хм, но как же так... А у меня есть какой-нибудь выбор?", files: [.Image(image: image01), .OtherFile(fileName: "How To Sheet In The Woods.pdf")], requestStatus: .Requested, author: .Client),
             ChatMessage(id: 808369, date: formatter.dateFromString("2015-08-14T13:13:42.32Z")!, text: "Конечно, у вас есть выбор! Взять дубовые, или пойти и выкоречевать ольху. Ведь все дубы пошли на плинтуса, а ольха нет!", requestStatus: .Answered, author: .Operator),
-            ChatMessage(id: 808420, date: formatter.dateFromString("2015-08-14T13:18:33.39Z")!, text: "Ну и ладно. Оставайтесь при своих.", files: [.Image(image: image02)], requestStatus: .Cancelled, author: .Client)
+            ChatMessage(id: 808420, date: formatter.dateFromString("2015-08-14T13:18:33.39Z")!, text: "Ну и ладно. Оставайтесь при своих.", files: [.Image(image: image02)], requestStatus: .Confirmed, author: .Client)
+        ]
+        let changeRequests = [
+            ATOrderInfo.changeRequestFromData([
+                "Id": "b2490a20-d2fb-4044-8043-e5704b20fb30",
+                "PaySystemTag": "BankCardRub",
+                "PaymentMethod": "CreditCard",
+                "PaymentAccountId": NSNull(),
+                "IsDelayedPaySystem": false,
+                "PersonalAccountChargeOffAvailable": false,
+                "IsLatest": false,
+                "RapidaTimeLimitUTC": "2015-10-06T20:00:00Z",
+                "TimeLimitLocalTime": "2015-10-06T23:00:00+03:00",
+                "CreatedDate": "2015-10-06T13:08:57.57+03:00",
+                "PaymentDate": "2015-10-06T00:00",
+                "Status": "WaitingForPayment",
+                "TotalAmountCeiled": 1054.0,
+                "TotalAmountCeiledEur": 14.0,
+                "Currency": "RUB",
+                "CardholderName": NSNull(),
+                "PaymentId": NSNull(),
+                "PayMarkup": 0.0,
+                "TicketNumber": NSNull(),
+                "Trips": [],
+                "InvoiceNumber": "227949924",
+                "AlertCode": NSNull(),
+                "IsAlertClosed": false,
+                "TotalSurchargeWoPaySystem": 1030.0]),
+            ATOrderInfo.changeRequestFromData([
+                "Id": "01484586-13b0-437e-81b5-9327f3143a0f",
+                "PaySystemTag": "BankCardRub",
+                "PaymentMethod": "CreditCard",
+                "PaymentAccountId": NSNull(),
+                "IsDelayedPaySystem": false,
+                "PersonalAccountChargeOffAvailable": false,
+                "IsLatest": true,
+                "RapidaTimeLimitUTC": "2015-10-09T20:00:00Z",
+                "TimeLimitLocalTime": "2015-10-09T23:00:00+03:00",
+                "CreatedDate": "2015-10-06T13:06:42.61+03:00",
+                "PaymentDate": "2015-10-06T13:07",
+                "Status": "PaymentCaptured",
+                "TotalAmountCeiled": 7.0,
+                "TotalAmountCeiledEur": 1.0,
+                "Currency": "RUB",
+                "CardholderName": NSNull(),
+                "PaymentId": NSNull(),
+                "PayMarkup": 0.0,
+                "TicketNumber": "1234567890",
+                "Trips": [],
+                "InvoiceNumber": NSNull(),
+                "AlertCode": NSNull(),
+                "IsAlertClosed": false,
+                "TotalSurchargeWoPaySystem": 250.0
+            ])
         ]
         let data: [String: AnyObject] = [
             "OrderNum": "821658955",
@@ -39,15 +92,15 @@ class ViewController: UIViewController {
             "OperatorOwnerName": "Vasiliy",
             "RequestType": "RETURN",
             "Reason": "ILLNESS",
-            "Status": "CANCELED"
-//            "Status": "CONFIRMED"
+//            "Status": "CANCELED"
+            "Status": "CONFIRMED"
 //            "Status": "AWAITING_CONFIRM"
 //            "Status": "REQUESTED"
 //            "Status": "ANSWERED"
 //            "Status": "FINISHED"
         ]
         do {
-            let request = try ExchangeAndRefundRequest(data: data, messages: messages)
+            let request = try ExchangeAndRefundRequest(data: data, messages: messages, changeRequests: changeRequests)
 
             let controller = ExchangeAndRefundViewController(request: request)
 

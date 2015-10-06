@@ -7,12 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9D68457E1BC3B1C1004B4FCC /* ChatConfirmationBlockCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D68457D1BC3B1C1004B4FCC /* ChatConfirmationBlockCell.swift */; settings = {ASSET_TAGS = (); }; };
+		9D6845821BC3F25F004B4FCC /* ExchangeAndRefundRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D6845811BC3F25F004B4FCC /* ExchangeAndRefundRequest.swift */; settings = {ASSET_TAGS = (); }; };
+		9D6845851BC3F423004B4FCC /* ATOrderInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 9D6845841BC3F423004B4FCC /* ATOrderInfo.m */; settings = {ASSET_TAGS = (); }; };
+		9D6845881BC3F794004B4FCC /* Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 9D6845871BC3F794004B4FCC /* Utils.m */; settings = {ASSET_TAGS = (); }; };
+		9D68458D1BC41700004B4FCC /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 9D68458F1BC41700004B4FCC /* Localizable.strings */; };
 		9D76EFFB1BBD17CB0082F14E /* ChatSendMessagePanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D76EFFA1BBD17CB0082F14E /* ChatSendMessagePanel.swift */; settings = {ASSET_TAGS = (); }; };
 		9D76EFFD1BBD2E050082F14E /* ExchangeAndRefundViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D76EFFC1BBD2E050082F14E /* ExchangeAndRefundViewController.swift */; settings = {ASSET_TAGS = (); }; };
 		9D76F0001BBD3CC90082F14E /* UIColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D76EFFF1BBD3CC90082F14E /* UIColor.swift */; settings = {ASSET_TAGS = (); }; };
 		9D76F0021BBD906B0082F14E /* UIFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D76F0011BBD906B0082F14E /* UIFont.swift */; settings = {ASSET_TAGS = (); }; };
 		9D76F0041BBD98B50082F14E /* SubtitleTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D76F0031BBD98B50082F14E /* SubtitleTitleView.swift */; settings = {ASSET_TAGS = (); }; };
-		9D76F0061BBE7BED0082F14E /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 9D76F0051BBE7BED0082F14E /* Localizable.strings */; settings = {ASSET_TAGS = (); }; };
 		9D8544281BBA94AF00AA9834 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8544271BBA94AF00AA9834 /* AppDelegate.swift */; };
 		9D85442A1BBA94AF00AA9834 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8544291BBA94AF00AA9834 /* ViewController.swift */; };
 		9D85442D1BBA94AF00AA9834 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9D85442B1BBA94AF00AA9834 /* Main.storyboard */; };
@@ -44,12 +48,25 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		9D68457D1BC3B1C1004B4FCC /* ChatConfirmationBlockCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatConfirmationBlockCell.swift; sourceTree = "<group>"; };
+		9D6845811BC3F25F004B4FCC /* ExchangeAndRefundRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExchangeAndRefundRequest.swift; sourceTree = "<group>"; };
+		9D6845831BC3F423004B4FCC /* ATOrderInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ATOrderInfo.h; sourceTree = "<group>"; };
+		9D6845841BC3F423004B4FCC /* ATOrderInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ATOrderInfo.m; sourceTree = "<group>"; };
+		9D6845861BC3F794004B4FCC /* Utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Utils.h; sourceTree = "<group>"; };
+		9D6845871BC3F794004B4FCC /* Utils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Utils.m; sourceTree = "<group>"; };
+		9D6845891BC416EB004B4FCC /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Main.strings; sourceTree = "<group>"; };
+		9D68458A1BC416EB004B4FCC /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
+		9D68458B1BC416F5004B4FCC /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Main.strings; sourceTree = "<group>"; };
+		9D68458C1BC416F5004B4FCC /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
+		9D68458E1BC41700004B4FCC /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
+		9D6845901BC41704004B4FCC /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
+		9D6845911BC41705004B4FCC /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		9D6845921BC4170D004B4FCC /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Base; path = Base.lproj/Localizable.strings; sourceTree = "<group>"; };
 		9D76EFFA1BBD17CB0082F14E /* ChatSendMessagePanel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatSendMessagePanel.swift; sourceTree = "<group>"; };
 		9D76EFFC1BBD2E050082F14E /* ExchangeAndRefundViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExchangeAndRefundViewController.swift; sourceTree = "<group>"; };
 		9D76EFFF1BBD3CC90082F14E /* UIColor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIColor.swift; sourceTree = "<group>"; };
 		9D76F0011BBD906B0082F14E /* UIFont.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIFont.swift; sourceTree = "<group>"; };
 		9D76F0031BBD98B50082F14E /* SubtitleTitleView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubtitleTitleView.swift; sourceTree = "<group>"; };
-		9D76F0051BBE7BED0082F14E /* Localizable.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
 		9D8544241BBA94AF00AA9834 /* ExchangeAndReturnChat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ExchangeAndReturnChat.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9D8544271BBA94AF00AA9834 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		9D8544291BBA94AF00AA9834 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -101,12 +118,14 @@
 			isa = PBXGroup;
 			children = (
 				9D8544591BBAA4BD00AA9834 /* ChatCollectionViewCell.swift */,
+				9D68457D1BC3B1C1004B4FCC /* ChatConfirmationBlockCell.swift */,
 				9D76EFFA1BBD17CB0082F14E /* ChatSendMessagePanel.swift */,
 				9D8544551BBA968300AA9834 /* ChatViewController.swift */,
+				9D6845811BC3F25F004B4FCC /* ExchangeAndRefundRequest.swift */,
 				9D76EFFC1BBD2E050082F14E /* ExchangeAndRefundViewController.swift */,
+				9D76F0031BBD98B50082F14E /* SubtitleTitleView.swift */,
 				9D76EFFF1BBD3CC90082F14E /* UIColor.swift */,
 				9D76F0011BBD906B0082F14E /* UIFont.swift */,
-				9D76F0031BBD98B50082F14E /* SubtitleTitleView.swift */,
 				9DD9C1F21BC27827007D2BAE /* Utils.swift */,
 			);
 			name = Chat;
@@ -145,7 +164,7 @@
 				9D8544301BBA94AF00AA9834 /* LaunchScreen.storyboard */,
 				9D8544331BBA94AF00AA9834 /* Info.plist */,
 				9D85445C1BBAE87F00AA9834 /* ExchangeAndReturnChat-Bridging-Header.h */,
-				9D76F0051BBE7BED0082F14E /* Localizable.strings */,
+				9D68458F1BC41700004B4FCC /* Localizable.strings */,
 			);
 			path = ExchangeAndReturnChat;
 			sourceTree = "<group>";
@@ -171,8 +190,12 @@
 		9D85445D1BBC112200AA9834 /* Awad */ = {
 			isa = PBXGroup;
 			children = (
+				9D6845831BC3F423004B4FCC /* ATOrderInfo.h */,
+				9D6845841BC3F423004B4FCC /* ATOrderInfo.m */,
 				9D85445E1BBC113000AA9834 /* NSString+Awad.h */,
 				9D85445F1BBC113000AA9834 /* NSString+Awad.m */,
+				9D6845861BC3F794004B4FCC /* Utils.h */,
+				9D6845871BC3F794004B4FCC /* Utils.m */,
 			);
 			path = Awad;
 			sourceTree = "<group>";
@@ -262,6 +285,7 @@
 			knownRegions = (
 				en,
 				Base,
+				de,
 			);
 			mainGroup = 9D85441B1BBA94AF00AA9834;
 			productRefGroup = 9D8544251BBA94AF00AA9834 /* Products */;
@@ -281,7 +305,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9D8544321BBA94AF00AA9834 /* LaunchScreen.storyboard in Resources */,
-				9D76F0061BBE7BED0082F14E /* Localizable.strings in Resources */,
+				9D68458D1BC41700004B4FCC /* Localizable.strings in Resources */,
 				9D85442F1BBA94AF00AA9834 /* Assets.xcassets in Resources */,
 				9D85442D1BBA94AF00AA9834 /* Main.storyboard in Resources */,
 			);
@@ -311,9 +335,13 @@
 				9D8544601BBC113000AA9834 /* NSString+Awad.m in Sources */,
 				9D85442A1BBA94AF00AA9834 /* ViewController.swift in Sources */,
 				9D76EFFB1BBD17CB0082F14E /* ChatSendMessagePanel.swift in Sources */,
+				9D6845881BC3F794004B4FCC /* Utils.m in Sources */,
+				9D6845851BC3F423004B4FCC /* ATOrderInfo.m in Sources */,
 				9D8544561BBA968300AA9834 /* ChatViewController.swift in Sources */,
 				9D76EFFD1BBD2E050082F14E /* ExchangeAndRefundViewController.swift in Sources */,
 				9D76F0001BBD3CC90082F14E /* UIColor.swift in Sources */,
+				9D68457E1BC3B1C1004B4FCC /* ChatConfirmationBlockCell.swift in Sources */,
+				9D6845821BC3F25F004B4FCC /* ExchangeAndRefundRequest.swift in Sources */,
 				9D76F0041BBD98B50082F14E /* SubtitleTitleView.swift in Sources */,
 				9DD9C1F31BC27827007D2BAE /* Utils.swift in Sources */,
 				9D85445A1BBAA4BD00AA9834 /* ChatCollectionViewCell.swift in Sources */,
@@ -354,10 +382,23 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
+		9D68458F1BC41700004B4FCC /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				9D68458E1BC41700004B4FCC /* ru */,
+				9D6845901BC41704004B4FCC /* de */,
+				9D6845911BC41705004B4FCC /* en */,
+				9D6845921BC4170D004B4FCC /* Base */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
 		9D85442B1BBA94AF00AA9834 /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
 				9D85442C1BBA94AF00AA9834 /* Base */,
+				9D6845891BC416EB004B4FCC /* de */,
+				9D68458B1BC416F5004B4FCC /* ru */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
@@ -366,6 +407,8 @@
 			isa = PBXVariantGroup;
 			children = (
 				9D8544311BBA94AF00AA9834 /* Base */,
+				9D68458A1BC416EB004B4FCC /* de */,
+				9D68458C1BC416F5004B4FCC /* ru */,
 			);
 			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";

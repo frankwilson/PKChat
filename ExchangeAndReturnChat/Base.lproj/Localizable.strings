@@ -15,5 +15,3 @@
 "LocExchangeRequested" = "Ожидает рассмотрения оператором";
 "LocExchangeInProcess" = "Рассматривается оператором";
 "LocExchangeConfirmed" = "Условия подтверждены";
-"LocRequestFinished" = "Запрос выполнен";
-"LocRequestCancelled" = "Запрос отменен";

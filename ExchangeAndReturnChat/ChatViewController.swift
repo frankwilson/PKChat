@@ -9,8 +9,10 @@
 import UIKit
 
 private let chatCellIdentifier = "ExchangeAndReturnChatBubble"
+private let confirmationCellIdentifier = "ExchangeAndReturnConfirmationBlock"
 private let chatHeaderIdentifier = "ExchangeAndReturnChatDateAndTime"
 private let chatFooterIdentifier = "ExchangeAndReturnChatFinishStatus"
+
 
 enum ChatState {
     case Requested
@@ -22,7 +24,7 @@ enum ChatState {
     case Finished
     case Other
 
-    init(requestStatus: ChatRequestStatus, operatorName: String?) {
+    init(requestStatus: ExchangeAndRefundRequestStatus, operatorName: String?) {
         switch requestStatus {
         case .Requested: self = (operatorName == nil ? .Requested : .InProcess)
         case .Answered: self = .Answered
@@ -65,10 +67,10 @@ struct ChatMessage {
     let date: NSDate
     let text: String?
     let files: [MessageFile]
-    let requestStatus: ChatRequestStatus
+    let requestStatus: ExchangeAndRefundRequestStatus
     let authorType: MessageAuthorType
 
-    init(id: Int, date: NSDate, text: String? = nil, files: [MessageFile]? = nil, requestStatus: ChatRequestStatus, author: MessageAuthorType) {
+    init(id: Int, date: NSDate, text: String? = nil, files: [MessageFile]? = nil, requestStatus: ExchangeAndRefundRequestStatus, author: MessageAuthorType) {
         self.id = id
         self.date = date
         self.text = text
@@ -105,6 +107,7 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
             c.contentInset = UIEdgeInsets(top: 10, left: 0, bottom: 10, right: 0)
 
             c.registerClass(ChatCollectionViewCell.self, forCellWithReuseIdentifier: chatCellIdentifier)
+            c.registerClass(ChatConfirmationBlockCell.self, forCellWithReuseIdentifier: confirmationCellIdentifier)
             c.registerClass(ChatDateAndTimeReusableView.self, forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: chatHeaderIdentifier)
             c.registerClass(ChatFinishedReusableView.self, forSupplementaryViewOfKind: UICollectionElementKindSectionFooter, withReuseIdentifier: chatFooterIdentifier)
         }
@@ -141,14 +144,20 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
 
     func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize {
         var cellHeight: CGFloat = 40.0
-        let cellWidth = bubbleCellWidth()
+        var cellWidth = bubbleCellWidth()
 
         // Calculate a cell height
         let message = request.messages[indexPath.section]
         if indexPath.row == message.files.count, let text = message.text {
-            cellHeight = ChatCollectionViewCell.sizeWithText(text, maxWidth: maxBubbleWidth(), documentStyle: false).height
+            if message.requestStatus == .AwaitingConfirmation || message.requestStatus == .Confirmed {
+                let size = ChatConfirmationBlockCell.size(text: text, passengerName: nil)
+                cellWidth = size.width
+                cellHeight = size.height
+            } else {
+                cellHeight = ChatCollectionViewCell.size(text: text, maxWidth: maxBubbleWidth(), documentStyle: false).height
+            }
         } else if case .OtherFile(let fileName) = message.files[indexPath.row] {
-            cellHeight = ChatCollectionViewCell.sizeWithText(fileName, maxWidth: maxBubbleWidth(), documentStyle: true).height
+            cellHeight = ChatCollectionViewCell.size(text: fileName, maxWidth: maxBubbleWidth(), documentStyle: true).height
         } else if case .Image(let image) = message.files[indexPath.row] {
             cellHeight = (cellWidth * 0.5) / image.size.width * image.size.height
         }
@@ -158,25 +167,18 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
 
     override func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
 
-        let cell = collectionView.dequeueReusableCellWithReuseIdentifier(chatCellIdentifier, forIndexPath: indexPath) as! ChatCollectionViewCell
-        cell.maxBubbleWidth = maxBubbleWidth()
-        cell.backgroundColor = self.collectionView?.backgroundColor
-
         let message = request.messages[indexPath.section]
-        let position: ChatElementPosition
-        switch message.authorType {
-        case .Client:
-            position = .Right // Client is always right
-        case .Operator:
-            position = .Left
-        }
 
-        if indexPath.row == message.files.count, let text = message.text {
-            cell.configure(text: text, position: position, documentStyle: false)
-        } else if case .OtherFile(let fileName) = message.files[indexPath.row] {
-            cell.configure(text: fileName, position: position, documentStyle: true)
-        } else if case .Image(let image) = message.files[indexPath.row] {
-            cell.configure(image: image, position: position)
+        let cell: UICollectionViewCell
+
+        if indexPath.row == message.files.count && (message.requestStatus == .AwaitingConfirmation || message.requestStatus == .Confirmed) {
+            let aCell = collectionView.dequeueReusableCellWithReuseIdentifier(confirmationCellIdentifier, forIndexPath: indexPath) as! ChatConfirmationBlockCell
+            configureConfirmationCell(aCell, message: message)
+            cell = aCell
+        } else {
+            let aCell = collectionView.dequeueReusableCellWithReuseIdentifier(chatCellIdentifier, forIndexPath: indexPath) as! ChatCollectionViewCell
+            configureBubbleCell(aCell, indexPath: indexPath, message: message)
+            cell = aCell
         }
 
         return cell
@@ -213,6 +215,43 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
             }
         }
         return UICollectionReusableView()
+    }
+
+    private func configureBubbleCell(cell: ChatCollectionViewCell, indexPath: NSIndexPath, message: ChatMessage) {
+
+        cell.maxBubbleWidth = maxBubbleWidth()
+        cell.backgroundColor = self.collectionView?.backgroundColor
+
+        let position: ChatElementPosition
+        switch message.authorType {
+        case .Client:
+            position = .Right // Client is always right
+        case .Operator:
+            position = .Left
+        }
+
+        if indexPath.row == message.files.count, let text = message.text {
+            cell.configure(text: text, position: position, documentStyle: false)
+        } else if case .OtherFile(let fileName) = message.files[indexPath.row] {
+            cell.configure(text: fileName, position: position, documentStyle: true)
+        } else if case .Image(let image) = message.files[indexPath.row] {
+            cell.configure(image: image, position: position)
+        }
+    }
+
+    private func configureConfirmationCell(cell: ChatConfirmationBlockCell, message: ChatMessage) {
+
+        let cellMode: ChatConfirmationCellMode
+
+        switch message.requestStatus {
+        case .AwaitingConfirmation: cellMode = .AwaitingConfirmation
+        case .Confirmed: cellMode = .Confirmed
+        case .Cancelled: cellMode = .Rejected
+        default: cellMode = .WaitingForPayment
+        }
+
+        cell.configureView(chatType: request.type, mode: cellMode, message: message.text!)
+
     }
 
     func maxBubbleWidth() -> CGFloat {

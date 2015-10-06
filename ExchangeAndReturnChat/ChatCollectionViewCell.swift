@@ -89,7 +89,7 @@ class ChatCollectionViewCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    class func sizeWithText(text: String, maxWidth: CGFloat, documentStyle: Bool) -> CGSize {
+    class func size(text text: String, maxWidth: CGFloat, documentStyle: Bool) -> CGSize {
         // Short name
         let insets = clientBubbleTextInsets
         let maxTextWidth = maxWidth - insets.left - insets.right - (documentStyle ? documentBubbleTextLeftInset : 0.0)
@@ -141,7 +141,7 @@ class ChatCollectionViewCell: UICollectionViewCell {
         let bubbleWidth: CGFloat
         if let text = self.text {
             textLabel.text = text
-            bubbleWidth = ChatCollectionViewCell.sizeWithText(text, maxWidth: maxBubbleWidth, documentStyle: documentStyle).width
+            bubbleWidth = ChatCollectionViewCell.size(text: text, maxWidth: maxBubbleWidth, documentStyle: documentStyle).width
             bubbleView.backgroundColor = position == .Left ? operatorBubbleColor : clientBubbleColor
             textLabel.backgroundColor = bubbleView.backgroundColor
             textLabel.textColor = position == .Left ? operatorTextColor : clientTextColor
@@ -192,7 +192,7 @@ class ChatCollectionViewCell: UICollectionViewCell {
             if let image = documentImageView {
                 imageView = image
             } else  {
-                imageView = UIImageView(image: UIImage(named: "Chat Document Icon")?.imageWithRenderingMode(.AlwaysTemplate));
+                imageView = UIImageView(image: UIImage(named: "Chat Document Icon")/*.imageWithRenderingMode(.AlwaysTemplate)*/)
                 imageView.tintColor = textLabel.textColor
                 imageView.translatesAutoresizingMaskIntoConstraints = false
                 documentImageView = imageView
