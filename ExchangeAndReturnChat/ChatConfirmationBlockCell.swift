@@ -150,10 +150,52 @@ private class ChatConfirmationButtonView: UIView {
         // Conditions Rejected block
         // Pay button
         // Dashed Payed button
-        view = ConditionsAcceptedView()
+        switch mode {
+        case .AwaitingConfirmation:
+            view = AcceptConditionsView()
+        case .Confirmed:
+            view = ConditionsAcceptedView()
+        default:
+            view = AcceptConditionsView()
+        }
         addSubview(view)
         addConstraint(NSLayoutConstraint(item: view, attribute: .CenterX, relatedBy: .Equal, toItem: self, attribute: .CenterX, multiplier: 1.0, constant: 0.0))
         addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|[buttonView]|", options: [], metrics: nil, views: ["buttonView": view]))
+    }
+
+}
+
+private class AcceptConditionsView: UIView {
+
+    init() {
+        super.init(frame: CGRectZero)
+
+        initializeView()
+    }
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    private func initializeView() {
+        translatesAutoresizingMaskIntoConstraints = false
+
+        let segmentedControl = UISegmentedControl(items: [
+            NSLocalizedString("LocAccept", comment: ""),
+            NSLocalizedString("LocContinueConversation", comment: "")
+        ])
+        segmentedControl.tintColor = UIColor.iphoneBlueColor()
+        segmentedControl.layer.borderColor = UIColor.iphoneBlueColor().CGColor
+        segmentedControl.layer.cornerRadius = 16.0
+        segmentedControl.layer.borderWidth = 1.0
+        segmentedControl.layer.masksToBounds = true
+        segmentedControl.translatesAutoresizingMaskIntoConstraints = false
+        segmentedControl.selectedSegmentIndex = 1
+        segmentedControl.setTitleTextAttributes([NSFontAttributeName: UIFont.iphoneRegularFont(13.0), NSForegroundColorAttributeName: UIColor.iphoneBlueColor()], forState: .Normal)
+        segmentedControl.setTitleTextAttributes([NSFontAttributeName: UIFont.iphoneRegularFont(13.0), NSForegroundColorAttributeName: UIColor.whiteColor()], forState: .Selected)
+
+        addSubview(segmentedControl)
+        addConstraint(NSLayoutConstraint(item: segmentedControl, attribute: .CenterX, relatedBy: .Equal, toItem: self, attribute: .CenterX, multiplier: 1.0, constant: 0.0))
+        addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|[control]|", options: [], metrics: nil, views: ["control": segmentedControl]))
     }
 
 }
