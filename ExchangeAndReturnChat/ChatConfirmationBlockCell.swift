@@ -14,6 +14,7 @@ private let buttonBlockHeight: CGFloat = 36
 
 private let topCellMargin: CGFloat = 18.0
 private let bottomCellMargin: CGFloat = 20.0
+private let sideCellMargin: CGFloat = 20.0
 
 enum ChatConfirmationCellMode {
     case AwaitingConfirmation
@@ -26,11 +27,15 @@ enum ChatConfirmationCellMode {
 
 class ChatConfirmationBlockCell: UICollectionViewCell {
 
+    private static let titleFont = UIFont.iphoneRegularFont(20.0)
+    private static let passengerFont = UIFont.iphoneRegularFont(14.0)
+    private static let messageFont = UIFont.iphoneRegularFont(14.0)
+
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.setContentHuggingPriority(UILayoutPriorityDefaultLow, forAxis: .Horizontal)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.iphoneRegularFont(20.0)
+        label.font = titleFont
         label.textColor = UIColor.whiteColor()
         label.textAlignment = .Center
 
@@ -40,7 +45,7 @@ class ChatConfirmationBlockCell: UICollectionViewCell {
         let label = UILabel()
         label.setContentHuggingPriority(UILayoutPriorityDefaultLow, forAxis: .Horizontal)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.iphoneRegularFont(14.0)
+        label.font = passengerFont
         label.textColor = UIColor.whiteColor()
         label.textAlignment = .Center
         label.numberOfLines = 0
@@ -52,9 +57,10 @@ class ChatConfirmationBlockCell: UICollectionViewCell {
         let label = UILabel()
         label.setContentHuggingPriority(UILayoutPriorityDefaultLow, forAxis: .Horizontal)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.iphoneRegularFont(14.0)
+        label.font = messageFont
         label.textColor = UIColor.iphoneMainGrayColor()
         label.textAlignment = .Center
+        label.numberOfLines = 0
 
         return label
     }()
@@ -84,7 +90,26 @@ class ChatConfirmationBlockCell: UICollectionViewCell {
     }
 
     class func size(text text: String, passengerName: String?) -> CGSize {
-        return CGSize(width: mainBlockWidth, height: 160.0)
+        var height = topCellMargin + bottomCellMargin
+
+        // title height
+        let titleText = NSLocalizedString("LocExchangeTickets", comment: "")
+        height += NSString(string: titleText).awad_boundsWithFont(titleFont, maxWidth: mainBlockWidth - sideCellMargin * 2).height
+
+        if let passenger = passengerName {
+            height += 20
+            height += NSString(string: passenger.uppercaseString).awad_boundsWithFont(passengerFont, maxWidth: mainBlockWidth - sideCellMargin * 2).height
+        }
+
+        // message height
+        height += 10
+        height += NSString(string: text).awad_boundsWithFont(messageFont, maxWidth: mainBlockWidth - sideCellMargin * 2).height
+
+        // button height
+        height += 15
+        height += buttonBlockHeight
+
+        return CGSize(width: mainBlockWidth, height: height)
     }
 
     private func initializeView() {
@@ -107,19 +132,19 @@ class ChatConfirmationBlockCell: UICollectionViewCell {
         mainBlock.addSubview(buttonBlock)
 
         let labels = ["title": titleLabel, "passenger": passengerLabel, "message": messageLabel, "button": buttonBlock]
-        let metrics = ["top": topCellMargin, "bottom": bottomCellMargin]
+        let metrics = ["top": topCellMargin, "bottom": bottomCellMargin, "buttonHeight": buttonBlockHeight]
         let format: String
 
         if mode == .WaitingForPayment {
             passengerLabel.text = passengerName ?? "Unknown"
             mainBlock.addSubview(passengerLabel)
-            format = "V:|-top-[title]-15-[passenger]-15-[message]-15-[button]-bottom-|"
+            format = "V:|-top-[title]-15-[passenger]-15-[message]-15-[button(buttonHeight)]-bottom-|"
         } else {
-            format = "V:|-top-[title]-10-[message]-15-[button]-bottom-|"
+            format = "V:|-top-[title]-10-[message]-15-[button(buttonHeight)]-bottom-|"
         }
         mainBlock.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(format, options: [.AlignAllLeading, .AlignAllTrailing], metrics: metrics, views: labels))
-        mainBlock.addConstraint(NSLayoutConstraint(item: titleLabel, attribute: .Leading, relatedBy: .Equal, toItem: mainBlock, attribute: .Leading, multiplier: 1.0, constant: 20.0))
-        mainBlock.addConstraint(NSLayoutConstraint(item: titleLabel, attribute: .Trailing, relatedBy: .Equal, toItem: mainBlock, attribute: .Trailing, multiplier: 1.0, constant: -20.0))
+        mainBlock.addConstraint(NSLayoutConstraint(item: titleLabel, attribute: .Leading, relatedBy: .Equal, toItem: mainBlock, attribute: .Leading, multiplier: 1.0, constant: sideCellMargin))
+        mainBlock.addConstraint(NSLayoutConstraint(item: titleLabel, attribute: .Trailing, relatedBy: .Equal, toItem: mainBlock, attribute: .Trailing, multiplier: 1.0, constant: -sideCellMargin))
 
         layoutIfNeeded()
     }
@@ -127,6 +152,8 @@ class ChatConfirmationBlockCell: UICollectionViewCell {
 }
 
 private class ChatConfirmationButtonView: UIView {
+
+    var currentButtonView: UIView?
 
     init() {
         super.init(frame: CGRectZero)
@@ -139,25 +166,28 @@ private class ChatConfirmationButtonView: UIView {
 
     private func initializeView() {
         translatesAutoresizingMaskIntoConstraints = false
-        addConstraint(NSLayoutConstraint(item: self, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1.0, constant: buttonBlockHeight))
-
     }
 
     private func configureView(mode: ChatConfirmationCellMode) {
         let view: UIView
-        // Segmented control – Accept or Continue chat
-        // Conditions Accepted block
-        // Conditions Rejected block
+
         // Pay button
         // Dashed Payed button
         switch mode {
         case .AwaitingConfirmation:
+            // Segmented control – Accept or Continue Chat
             view = AcceptConditionsView()
         case .Confirmed:
+            // Conditions Accepted block
             view = ConditionsAcceptedView()
+        case .Rejected:
+            // Conditions Rejected block
+            view = ConditionsRejectedView()
         default:
             view = AcceptConditionsView()
         }
+        currentButtonView?.removeFromSuperview()
+        currentButtonView = view
         addSubview(view)
         addConstraint(NSLayoutConstraint(item: view, attribute: .CenterX, relatedBy: .Equal, toItem: self, attribute: .CenterX, multiplier: 1.0, constant: 0.0))
         addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|[buttonView]|", options: [], metrics: nil, views: ["buttonView": view]))
@@ -184,12 +214,9 @@ private class AcceptConditionsView: UIView {
             NSLocalizedString("LocContinueConversation", comment: "")
         ])
         segmentedControl.tintColor = UIColor.iphoneBlueColor()
-        segmentedControl.layer.borderColor = UIColor.iphoneBlueColor().CGColor
-        segmentedControl.layer.cornerRadius = 16.0
-        segmentedControl.layer.borderWidth = 1.0
-        segmentedControl.layer.masksToBounds = true
+        segmentedControl.addRoundCorners(radius: 16.0, borderColor: UIColor.iphoneBlueColor())
         segmentedControl.translatesAutoresizingMaskIntoConstraints = false
-        segmentedControl.selectedSegmentIndex = 1
+        segmentedControl.selectedSegmentIndex = 0
         segmentedControl.setTitleTextAttributes([NSFontAttributeName: UIFont.iphoneRegularFont(13.0), NSForegroundColorAttributeName: UIColor.iphoneBlueColor()], forState: .Normal)
         segmentedControl.setTitleTextAttributes([NSFontAttributeName: UIFont.iphoneRegularFont(13.0), NSForegroundColorAttributeName: UIColor.whiteColor()], forState: .Selected)
 
@@ -215,9 +242,7 @@ private class ConditionsAcceptedView: UIView {
         translatesAutoresizingMaskIntoConstraints = false
         addConstraint(NSLayoutConstraint(item: self, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1.0, constant: 150.0))
 
-        layer.borderColor = UIColor.whiteColor().CGColor
-        layer.borderWidth = 1.0
-        layer.cornerRadius = 5.0
+        addRoundCorners(radius: 5.0, borderColor: UIColor.whiteColor())
 
         let imageView = UIImageView(image: UIImage(named: "Chat Confirmation Checkmark"))
         imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -233,14 +258,44 @@ private class ConditionsAcceptedView: UIView {
 
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 2
         label.font = UIFont.iphoneDefaultFont(14.0)
         label.textColor = UIColor.whiteColor()
+        label.numberOfLines = 2
         label.attributedText = attrText
 
         addSubview(label)
         addConstraint(NSLayoutConstraint(item: label, attribute: .Leading, relatedBy: .Equal, toItem: imageView, attribute: .Trailing, multiplier: 1.0, constant: 8.0))
         addConstraint(NSLayoutConstraint(item: label, attribute: .Trailing, relatedBy: .Equal, toItem: self, attribute: .Trailing, multiplier: 1.0, constant: 0.0))
+        addConstraint(NSLayoutConstraint(item: label, attribute: .CenterY, relatedBy: .Equal, toItem: self, attribute: .CenterY, multiplier: 1.0, constant: 0.0))
+    }
+
+}
+
+private class ConditionsRejectedView: UIView {
+
+    init() {
+        super.init(frame: CGRectZero)
+
+        initializeView()
+    }
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    private func initializeView() {
+        translatesAutoresizingMaskIntoConstraints = false
+        addConstraint(NSLayoutConstraint(item: self, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1.0, constant: 150.0))
+
+        addRoundCorners(radius: 5.0, borderColor: UIColor.iphoneMainGrayColor())
+
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = UIFont.iphoneRegularFont(16.0)
+        label.textColor = UIColor.iphoneMainGrayColor()
+        label.text = NSLocalizedString("LocRejected", comment: "")
+
+        addSubview(label)
+        addConstraint(NSLayoutConstraint(item: label, attribute: .CenterX, relatedBy: .Equal, toItem: self, attribute: .CenterX, multiplier: 1.0, constant: 0.0))
         addConstraint(NSLayoutConstraint(item: label, attribute: .CenterY, relatedBy: .Equal, toItem: self, attribute: .CenterY, multiplier: 1.0, constant: 0.0))
     }
 

@@ -12,6 +12,9 @@
 		9D6845851BC3F423004B4FCC /* ATOrderInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 9D6845841BC3F423004B4FCC /* ATOrderInfo.m */; settings = {ASSET_TAGS = (); }; };
 		9D6845881BC3F794004B4FCC /* Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 9D6845871BC3F794004B4FCC /* Utils.m */; settings = {ASSET_TAGS = (); }; };
 		9D68458D1BC41700004B4FCC /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 9D68458F1BC41700004B4FCC /* Localizable.strings */; };
+		9D6845941BC51978004B4FCC /* UIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D6845931BC51978004B4FCC /* UIView.swift */; settings = {ASSET_TAGS = (); }; };
+		9D6845981BC543D9004B4FCC /* hotel_pool.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 9D6845961BC543D9004B4FCC /* hotel_pool.jpg */; settings = {ASSET_TAGS = (); }; };
+		9D6845991BC543D9004B4FCC /* portrait_btbob.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 9D6845971BC543D9004B4FCC /* portrait_btbob.jpg */; settings = {ASSET_TAGS = (); }; };
 		9D76EFFB1BBD17CB0082F14E /* ChatSendMessagePanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D76EFFA1BBD17CB0082F14E /* ChatSendMessagePanel.swift */; settings = {ASSET_TAGS = (); }; };
 		9D76EFFD1BBD2E050082F14E /* ExchangeAndRefundViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D76EFFC1BBD2E050082F14E /* ExchangeAndRefundViewController.swift */; settings = {ASSET_TAGS = (); }; };
 		9D76F0001BBD3CC90082F14E /* UIColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D76EFFF1BBD3CC90082F14E /* UIColor.swift */; settings = {ASSET_TAGS = (); }; };
@@ -62,6 +65,9 @@
 		9D6845901BC41704004B4FCC /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
 		9D6845911BC41705004B4FCC /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		9D6845921BC4170D004B4FCC /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Base; path = Base.lproj/Localizable.strings; sourceTree = "<group>"; };
+		9D6845931BC51978004B4FCC /* UIView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIView.swift; sourceTree = "<group>"; };
+		9D6845961BC543D9004B4FCC /* hotel_pool.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = hotel_pool.jpg; sourceTree = "<group>"; };
+		9D6845971BC543D9004B4FCC /* portrait_btbob.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = portrait_btbob.jpg; sourceTree = "<group>"; };
 		9D76EFFA1BBD17CB0082F14E /* ChatSendMessagePanel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatSendMessagePanel.swift; sourceTree = "<group>"; };
 		9D76EFFC1BBD2E050082F14E /* ExchangeAndRefundViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExchangeAndRefundViewController.swift; sourceTree = "<group>"; };
 		9D76EFFF1BBD3CC90082F14E /* UIColor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIColor.swift; sourceTree = "<group>"; };
@@ -114,6 +120,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		9D6845951BC5438F004B4FCC /* Images */ = {
+			isa = PBXGroup;
+			children = (
+				9D6845961BC543D9004B4FCC /* hotel_pool.jpg */,
+				9D6845971BC543D9004B4FCC /* portrait_btbob.jpg */,
+			);
+			name = Images;
+			sourceTree = "<group>";
+		};
 		9D76EFFE1BBD33AD0082F14E /* Chat */ = {
 			isa = PBXGroup;
 			children = (
@@ -127,6 +142,7 @@
 				9D76EFFF1BBD3CC90082F14E /* UIColor.swift */,
 				9D76F0011BBD906B0082F14E /* UIFont.swift */,
 				9DD9C1F21BC27827007D2BAE /* Utils.swift */,
+				9D6845931BC51978004B4FCC /* UIView.swift */,
 			);
 			name = Chat;
 			sourceTree = "<group>";
@@ -154,6 +170,7 @@
 		9D8544261BBA94AF00AA9834 /* ExchangeAndReturnChat */ = {
 			isa = PBXGroup;
 			children = (
+				9D6845951BC5438F004B4FCC /* Images */,
 				9D85445D1BBC112200AA9834 /* Awad */,
 				9D76EFFE1BBD33AD0082F14E /* Chat */,
 				9D8544271BBA94AF00AA9834 /* AppDelegate.swift */,
@@ -306,6 +323,8 @@
 			files = (
 				9D8544321BBA94AF00AA9834 /* LaunchScreen.storyboard in Resources */,
 				9D68458D1BC41700004B4FCC /* Localizable.strings in Resources */,
+				9D6845991BC543D9004B4FCC /* portrait_btbob.jpg in Resources */,
+				9D6845981BC543D9004B4FCC /* hotel_pool.jpg in Resources */,
 				9D85442F1BBA94AF00AA9834 /* Assets.xcassets in Resources */,
 				9D85442D1BBA94AF00AA9834 /* Main.storyboard in Resources */,
 			);
@@ -332,6 +351,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9D6845941BC51978004B4FCC /* UIView.swift in Sources */,
 				9D8544601BBC113000AA9834 /* NSString+Awad.m in Sources */,
 				9D85442A1BBA94AF00AA9834 /* ViewController.swift in Sources */,
 				9D76EFFB1BBD17CB0082F14E /* ChatSendMessagePanel.swift in Sources */,

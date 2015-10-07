@@ -15,6 +15,7 @@
 "LocExchangeRequested" = "Ожидает рассмотрения оператором";
 "LocExchangeInProcess" = "Рассматривается оператором";
 "LocExchangeConfirmed" = "Условия подтверждены";
+"LocRejected" = "Отклонено";
 
 "LocAccept" = "Принимаю";
 "LocContinueConversation" = "Продолжить беседу";

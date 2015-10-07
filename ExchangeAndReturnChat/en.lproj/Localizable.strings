@@ -15,6 +15,7 @@
 "LocExchangeRequested" = "The request is to be processed";
 "LocExchangeInProcess" = "The request is in process";
 "LocExchangeConfirmed" = "The terms are confirmed";
+"LocRejected" = "Rejected";
 
 "LocAccept" = "Accept";
 "LocContinueConversation" = "Continue conversation";

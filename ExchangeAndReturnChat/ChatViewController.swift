@@ -149,7 +149,7 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
         // Calculate a cell height
         let message = request.messages[indexPath.section]
         if indexPath.row == message.files.count, let text = message.text {
-            if message.requestStatus == .AwaitingConfirmation || message.requestStatus == .Confirmed {
+            if message.requestStatus == .AwaitingConfirmation {
                 let size = ChatConfirmationBlockCell.size(text: text, passengerName: nil)
                 cellWidth = size.width
                 cellHeight = size.height
@@ -171,9 +171,10 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
 
         let cell: UICollectionViewCell
 
-        if indexPath.row == message.files.count && (message.requestStatus == .AwaitingConfirmation || message.requestStatus == .Confirmed) {
+        if indexPath.row == message.files.count && message.requestStatus == .AwaitingConfirmation {
             let aCell = collectionView.dequeueReusableCellWithReuseIdentifier(confirmationCellIdentifier, forIndexPath: indexPath) as! ChatConfirmationBlockCell
-            configureConfirmationCell(aCell, message: message)
+            let nextMessage: ChatMessage? = request.messages.count > indexPath.section + 1 ? request.messages[indexPath.section + 1] : nil
+            configureConfirmationCell(aCell, message: message, nextMessage: nextMessage)
             cell = aCell
         } else {
             let aCell = collectionView.dequeueReusableCellWithReuseIdentifier(chatCellIdentifier, forIndexPath: indexPath) as! ChatCollectionViewCell
@@ -239,15 +240,32 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
         }
     }
 
-    private func configureConfirmationCell(cell: ChatConfirmationBlockCell, message: ChatMessage) {
+    /**
+     * Configures Confirmation Block cell
+     *
+     * - parameter cell: Cell to configure
+     * - parameter message: Current message
+     * - parameter nextMessage: Next message that defines a current block status – Accepted, Rejected, Not Confirmed (if nil)
+     */
+    private func configureConfirmationCell(cell: ChatConfirmationBlockCell, message: ChatMessage, nextMessage: ChatMessage?) {
 
         let cellMode: ChatConfirmationCellMode
 
         switch message.requestStatus {
-        case .AwaitingConfirmation: cellMode = .AwaitingConfirmation
-        case .Confirmed: cellMode = .Confirmed
-        case .Cancelled: cellMode = .Rejected
-        default: cellMode = .WaitingForPayment
+        case .AwaitingConfirmation:
+            if let nextMessage = nextMessage {
+                if nextMessage.requestStatus == .Confirmed {
+                    cellMode = .Confirmed
+                } else {
+                    cellMode = .Rejected
+                }
+            } else {
+                cellMode = .AwaitingConfirmation
+            }
+        case .Confirmed:
+            cellMode = .Confirmed
+        default:
+            cellMode = .WaitingForPayment
         }
 
         cell.configureView(chatType: request.type, mode: cellMode, message: message.text!)

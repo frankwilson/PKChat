@@ -15,6 +15,7 @@
 "LocExchangeRequested" = "Die Anfrage ist zu bearbeiten";
 "LocExchangeInProcess" = "Die Anfrage ist in Bearbeitung";
 "LocExchangeConfirmed" = "Die Bedingungen sind bestätigt";
+"LocRejected" = "Abgelehnt";
 
 "LocAccept" = "Ich akzeptiere";
 "LocContinueConversation" = "Gespräch fortsetzen";

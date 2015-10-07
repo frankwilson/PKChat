@@ -21,15 +21,17 @@ class ViewController: UIViewController {
         let formatter = NSDateFormatter()
         formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ"
 
-        let image01 = UIImage(data: NSData(contentsOfURL: NSURL(string: "https://www.anywayanyday.com/hotelimages_new/c8/ae/d6/419a79/65D742_72_z.jpg")!)!)!
-        let image02 = UIImage(data: NSData(contentsOfURL: NSURL(string: "https://img00.deviantart.net/8506/i/2009/159/b/4/portrait_mode_by_btbob.jpg")!)!)!
+        let image01 = UIImage(named: "hotel_pool.jpg")!
+        let image02 = UIImage(named: "portrait_btbob.jpg")!
 
         let messages = [
             ChatMessage(id: 808366, date: formatter.dateFromString("2015-08-14T13:09:17.39Z")!, text: "Здравствуйте!\nПодскажите, пожалуйста, а у вас есть ольховые плинтуса?", requestStatus: .Requested, author: .Client),
             ChatMessage(id: 808367, date: formatter.dateFromString("2015-08-14T13:10:57.67Z")!, text: "Нет, у нас только дубовые!", files: [.OtherFile(fileName: "Frak you, Spielberg!.docx")], requestStatus: .Answered, author: .Operator),
             ChatMessage(id: 808368, date: formatter.dateFromString("2015-08-14T13:11:43.03Z")!, text: "Хм, но как же так... А у меня есть какой-нибудь выбор?", files: [.Image(image: image01), .OtherFile(fileName: "How To Sheet In The Woods.pdf")], requestStatus: .Requested, author: .Client),
-            ChatMessage(id: 808369, date: formatter.dateFromString("2015-08-14T13:13:42.32Z")!, text: "Конечно, у вас есть выбор! Взять дубовые, или пойти и выкоречевать ольху. Ведь все дубы пошли на плинтуса, а ольха нет!", requestStatus: .Answered, author: .Operator),
-            ChatMessage(id: 808420, date: formatter.dateFromString("2015-08-14T13:18:33.39Z")!, text: "Ну и ладно. Оставайтесь при своих.", files: [.Image(image: image02)], requestStatus: .Confirmed, author: .Client)
+            ChatMessage(id: 808369, date: formatter.dateFromString("2015-08-14T13:13:42.32Z")!, text: "Конечно, у вас есть выбор! Взять дубовые, или пойти и выкоречевать ольху. Ведь все дубы пошли на плинтуса, а ольха нет!", requestStatus: .AwaitingConfirmation, author: .Operator),
+            ChatMessage(id: 808420, date: formatter.dateFromString("2015-08-14T13:18:33.39Z")!, text: "I'll take it from here.", files: [.Image(image: image02)], requestStatus: .Confirmed, author: .Client),
+//            ChatMessage(id: 808420, date: formatter.dateFromString("2015-08-14T13:18:33.39Z")!, text: "Ну и ладно. Оставайтесь при своих.", files: [.Image(image: image02)], requestStatus: .Requested, author: .Client),
+//            ChatMessage(id: 808367, date: formatter.dateFromString("2015-08-14T13:10:57.67Z")!, text: "Непременно!", requestStatus: .Answered, author: .Operator),
         ]
         let changeRequests = [
             ATOrderInfo.changeRequestFromData([
