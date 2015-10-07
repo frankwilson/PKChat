@@ -57,29 +57,24 @@ class ChatCollectionViewCell: UICollectionViewCell {
         return imageView
     }()
     private var documentImageView: UIImageView?
-    private let bubbleView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-
-        return view
-    }()
+    private let bubbleView = BubbleView()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
 
         contentView.addSubview(bubbleView)
-        contentView.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|[bubbleView]|", options: [.AlignAllCenterY], metrics: nil, views: ["bubbleView": bubbleView]))
+        contentView.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|[bubbleView]|", options: [], metrics: nil, views: ["bubbleView": bubbleView]))
         bubbleLeagingConstraint = NSLayoutConstraint(item: bubbleView, attribute: .Leading, relatedBy: .Equal, toItem: contentView, attribute: .Leading, multiplier: 1, constant: 0)
         contentView.addConstraint(bubbleLeagingConstraint)
         bubbleWidthConstraint = NSLayoutConstraint(item: bubbleView, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1, constant: 200)
         contentView.addConstraint(bubbleWidthConstraint)
 
         bubbleView.addSubview(imageView)
-        bubbleView.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("|[imageView]|", options: [.AlignAllCenterX], metrics: nil, views: ["imageView": imageView]))
-        bubbleView.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|[imageView]|", options: [.AlignAllCenterY], metrics: nil, views: ["imageView": imageView]))
+        bubbleView.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("H:|[imageView]|", options: [], metrics: nil, views: ["imageView": imageView]))
+        bubbleView.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|[imageView]|", options: [], metrics: nil, views: ["imageView": imageView]))
 
         bubbleView.addSubview(textLabel)
-        bubbleView.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|-5-[label]-5-|", options: [.AlignAllCenterY], metrics: nil, views: ["label": textLabel]))
+        bubbleView.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|-5-[label]-5-|", options: [], metrics: nil, views: ["label": textLabel]))
         bubbleLabelLeadingConstraint = NSLayoutConstraint(item: textLabel, attribute: .Leading, relatedBy: .Equal, toItem: bubbleView, attribute: .Leading, multiplier: 1, constant: 10)
         bubbleView.addConstraint(bubbleLabelLeadingConstraint)
         bubbleLabelTrailingConstraint = NSLayoutConstraint(item: bubbleView, attribute: .Trailing, relatedBy: .Equal, toItem: textLabel, attribute: .Trailing, multiplier: 1, constant: 10)
@@ -129,13 +124,6 @@ class ChatCollectionViewCell: UICollectionViewCell {
         configureView()
     }
 
-    override func drawRect(rect: CGRect) {
-        super.drawRect(rect)
-
-        // Dirty hack! have to update mask layer size somehow
-        bubbleView.layer.mask?.frame = bubbleView.layer.bounds
-    }
-
     private func configureView(documentStyle: Bool = false) {
 
         let bubbleWidth: CGFloat
@@ -152,13 +140,13 @@ class ChatCollectionViewCell: UICollectionViewCell {
                 textLabel.lineBreakMode = .ByWordWrapping
             }
             textLabel.numberOfLines = documentStyle ? 1 : 0
-            displayDocumentImage(documentStyle)
         } else if let image = self.image {
             imageView.image = image
             bubbleWidth = ceil(bounds.size.width / 2)
         } else {
             return
         }
+        displayDocumentImage(documentStyle)
 
         let offset = floor(bounds.size.width - bubbleWidth)
 
@@ -192,7 +180,7 @@ class ChatCollectionViewCell: UICollectionViewCell {
             if let image = documentImageView {
                 imageView = image
             } else  {
-                imageView = UIImageView(image: UIImage(named: "Chat Document Icon")/*.imageWithRenderingMode(.AlwaysTemplate)*/)
+                imageView = UIImageView(image: UIImage(named: "Chat Document Icon"))
                 imageView.tintColor = textLabel.textColor
                 imageView.translatesAutoresizingMaskIntoConstraints = false
                 documentImageView = imageView
@@ -202,6 +190,23 @@ class ChatCollectionViewCell: UICollectionViewCell {
             bubbleView.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("H:|-left-[image]", options: [], metrics: ["left": leftOffset], views: ["image": imageView]))
             bubbleView.addConstraint(NSLayoutConstraint(item: imageView, attribute: .CenterY, relatedBy: .Equal, toItem: bubbleView, attribute: .CenterY, multiplier: 1.0, constant: 0.0))
         }
+    }
+
+}
+
+private class BubbleView: UIView {
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        translatesAutoresizingMaskIntoConstraints = false
+    }
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        layer.mask?.frame = layer.bounds
     }
 
 }
