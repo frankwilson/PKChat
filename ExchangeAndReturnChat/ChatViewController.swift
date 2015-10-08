@@ -139,30 +139,34 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
         if message.text != nil {
             count++
         }
+        if message.requestStatus == .Confirmed {
+            count += self.request.changeRequests.count
+        }
         return count
     }
 
     func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize {
-        var cellHeight: CGFloat = 40.0
-        var cellWidth = bubbleCellWidth()
+        var cellSize = CGSize(width: bubbleCellWidth(), height: 40.0)
 
         // Calculate a cell height
         let message = request.messages[indexPath.section]
         if indexPath.row == message.files.count, let text = message.text {
             if message.requestStatus == .AwaitingConfirmation {
-                let size = ChatConfirmationBlockCell.size(text: text, passengerName: nil)
-                cellWidth = size.width
-                cellHeight = size.height
+                cellSize = ChatConfirmationBlockCell.size(text: text, passengerName: nil)
             } else {
-                cellHeight = ChatCollectionViewCell.size(text: text, maxWidth: maxBubbleWidth(), documentStyle: false).height
+                cellSize.height = ChatCollectionViewCell.size(text: text, maxWidth: maxBubbleWidth(), documentStyle: false).height
             }
+        } else if indexPath.row > message.files.count && request.changeRequests.count > 0 {
+            let requestIndex = indexPath.row - (message.text != nil ? 1 : 0) - message.files.count
+            let currentChangeRequest = request.changeRequests[requestIndex]
+            cellSize = ChatConfirmationBlockCell.size(text: currentChangeRequest.localizedStatus(), passengerName: currentChangeRequest.passengerName)
         } else if case .OtherFile(let fileName) = message.files[indexPath.row] {
-            cellHeight = ChatCollectionViewCell.size(text: fileName, maxWidth: maxBubbleWidth(), documentStyle: true).height
+            cellSize.height = ChatCollectionViewCell.size(text: fileName, maxWidth: maxBubbleWidth(), documentStyle: true).height
         } else if case .Image(let image) = message.files[indexPath.row] {
-            cellHeight = (cellWidth * 0.5) / image.size.width * image.size.height
+            cellSize.height = (cellSize.width * 0.5) / image.size.width * image.size.height
         }
 
-        return CGSize(width: cellWidth, height: CGFloat(cellHeight))
+        return cellSize
     }
 
     override func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
@@ -175,6 +179,11 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
             let aCell = collectionView.dequeueReusableCellWithReuseIdentifier(confirmationCellIdentifier, forIndexPath: indexPath) as! ChatConfirmationBlockCell
             let nextMessage: ChatMessage? = request.messages.count > indexPath.section + 1 ? request.messages[indexPath.section + 1] : nil
             configureConfirmationCell(aCell, message: message, nextMessage: nextMessage)
+            cell = aCell
+        } else if indexPath.row > message.files.count && request.changeRequests.count > 0 {
+            let aCell = collectionView.dequeueReusableCellWithReuseIdentifier(confirmationCellIdentifier, forIndexPath: indexPath) as! ChatConfirmationBlockCell
+            let requestIndex = indexPath.row - (message.text != nil ? 1 : 0) - message.files.count
+            configurePaymentCell(aCell, changeRequest: request.changeRequests[requestIndex])
             cell = aCell
         } else {
             let aCell = collectionView.dequeueReusableCellWithReuseIdentifier(chatCellIdentifier, forIndexPath: indexPath) as! ChatCollectionViewCell
@@ -265,11 +274,34 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
         case .Confirmed:
             cellMode = .Confirmed
         default:
-            cellMode = .WaitingForPayment
+            cellMode = .AwaitingConfirmation
         }
 
         cell.configureView(chatType: request.type, mode: cellMode, message: message.text!)
+    }
 
+    private func configurePaymentCell(cell: ChatConfirmationBlockCell, changeRequest: ATOrderChangeRequest) {
+
+        let cellMode: ChatConfirmationCellMode
+
+        if changeRequest.status == .WaitingForPayment {
+            let priceFormatter = NSNumberFormatter()
+            priceFormatter.numberStyle = .CurrencyStyle
+            // FIXME: Get price from a ChangeRequest
+            let value = NSNumber(double: 342.05)
+            let priceText = priceFormatter.stringFromNumber(value)!
+            cellMode = ChatConfirmationCellMode.WaitingForPayment(priceText: priceText)
+        } else if changeRequest.status == .PaymentCaptured {
+            cellMode = .PaymentComplete
+        } else if changeRequest.status == .PaymentComplete {
+            cellMode = .PaymentComplete
+        } else {
+            cellMode = .InProcess
+        }
+
+        let passengerName: String? = changeRequest.passengerName
+
+        cell.configureView(chatType: request.type, mode: cellMode, message: changeRequest.localizedStatus(), passengerName: passengerName)
     }
 
     func maxBubbleWidth() -> CGFloat {

@@ -58,8 +58,9 @@ class ViewController: UIViewController {
                 "InvoiceNumber": "227949924",
                 "AlertCode": NSNull(),
                 "IsAlertClosed": false,
-                "TotalSurchargeWoPaySystem": 1030.0]),
-            ATOrderInfo.changeRequestFromData([
+                "TotalSurchargeWoPaySystem": 1030.0,
+                "PassengerName": "Andrew Weatherall"
+            ]), ATOrderInfo.changeRequestFromData([
                 "Id": "01484586-13b0-437e-81b5-9327f3143a0f",
                 "PaySystemTag": "BankCardRub",
                 "PaymentMethod": "CreditCard",
@@ -83,7 +84,8 @@ class ViewController: UIViewController {
                 "InvoiceNumber": NSNull(),
                 "AlertCode": NSNull(),
                 "IsAlertClosed": false,
-                "TotalSurchargeWoPaySystem": 250.0
+                "TotalSurchargeWoPaySystem": 250.0,
+                "PassengerName": "Thomas Jefferson"
             ])
         ]
         let data: [String: AnyObject] = [
@@ -92,7 +94,7 @@ class ViewController: UIViewController {
             "RequestID": "4d0607a3-8b34-4f01-af36-fc28517171bd",
             "DateCreated": ["Date": "2015-08-14T13:09:17.39Z"],
             "OperatorOwnerName": "Vasiliy",
-            "RequestType": "RETURN",
+            "RequestType": "CHANGE",
             "Reason": "ILLNESS",
 //            "Status": "CANCELED"
             "Status": "CONFIRMED"

@@ -130,6 +130,11 @@
 @property (nonatomic, strong) NSString *paymentAccountId;
 @property (nonatomic, strong) ATOrderInfoTrip *trip;
 @property (nonatomic, assign) BOOL isLatest;
+
+@property (nonatomic, copy, nonnull) NSString *passengerName;
+
+- (NSString * __nonnull)localizedStatus;
+
 @end
 
 @interface ATOrderReturnRequest : NSObject

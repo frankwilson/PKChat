@@ -47,4 +47,14 @@ typedef NS_ENUM(int8_t, OrderStatusCode) {
 + (NSDictionary *)orderStatusesDictionary;
 + (OrderStatusCode)codeOfStatus:(NSString*)inCode;
 
++ (NSString *)convertedDateString:(NSString *)dateString
+                       fromFormat:(NSString *)inputFormat
+                         toFormat:(NSString *)outputFormat
+                isSourceDateInUTC:(BOOL)isSourceDateInUTC;
+
++ (NSString *)convertedDateString:(NSString *)dateString
+                  fromFormatArray:(NSArray *)inputFormatArray
+                         toFormat:(NSString *)outputFormat
+                isSourceDateInUTC:(BOOL)isSourceDateInUTC;
+
 @end

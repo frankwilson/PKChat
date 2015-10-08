@@ -20,9 +20,10 @@ enum ChatConfirmationCellMode {
     case AwaitingConfirmation
     case Confirmed
     case Rejected
-    case WaitingForPayment
-    case PaimentCaptured
+    case WaitingForPayment(priceText: String)
+    case PaymentCaptured
     case PaymentComplete
+    case InProcess
 }
 
 class ChatConfirmationBlockCell: UICollectionViewCell {
@@ -134,9 +135,16 @@ class ChatConfirmationBlockCell: UICollectionViewCell {
         let labels = ["title": titleLabel, "passenger": passengerLabel, "message": messageLabel, "button": buttonBlock]
         let metrics = ["top": topCellMargin, "bottom": bottomCellMargin, "buttonHeight": buttonBlockHeight]
         let format: String
+        let passengerNameText: String?
+        switch mode {
+        case .WaitingForPayment(_), .PaymentCaptured, .PaymentComplete:
+            passengerNameText = passengerName?.uppercaseString ?? "Unknown"
+        default:
+            passengerNameText = nil
+        }
 
-        if mode == .WaitingForPayment {
-            passengerLabel.text = passengerName ?? "Unknown"
+        if let passengerName = passengerNameText {
+            passengerLabel.text = passengerName
             mainBlock.addSubview(passengerLabel)
             format = "V:|-top-[title]-15-[passenger]-15-[message]-15-[button(buttonHeight)]-bottom-|"
         } else {
@@ -171,8 +179,6 @@ private class ChatConfirmationButtonView: UIView {
     private func configureView(mode: ChatConfirmationCellMode) {
         let view: UIView
 
-        // Pay button
-        // Dashed Payed button
         switch mode {
         case .AwaitingConfirmation:
             // Segmented control – Accept or Continue Chat
@@ -183,8 +189,15 @@ private class ChatConfirmationButtonView: UIView {
         case .Rejected:
             // Conditions Rejected block
             view = ConditionsRejectedView()
-        default:
-            view = AcceptConditionsView()
+        case .WaitingForPayment(let priceText):
+            // Pay button
+            view = PaymentView(title: priceText)
+        case .PaymentCaptured(), .PaymentComplete:
+            // Dashed Payed button
+            view = PaymentView()
+        case .InProcess:
+            // TODO: Check! Is InProcess a possible status for a Payment Block?
+            view = PaymentView()
         }
         currentButtonView?.removeFromSuperview()
         currentButtonView = view
@@ -224,7 +237,6 @@ private class AcceptConditionsView: UIView {
         addConstraint(NSLayoutConstraint(item: segmentedControl, attribute: .CenterX, relatedBy: .Equal, toItem: self, attribute: .CenterX, multiplier: 1.0, constant: 0.0))
         addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|[control]|", options: [], metrics: nil, views: ["control": segmentedControl]))
     }
-
 }
 
 private class ConditionsAcceptedView: UIView {
@@ -268,7 +280,6 @@ private class ConditionsAcceptedView: UIView {
         addConstraint(NSLayoutConstraint(item: label, attribute: .Trailing, relatedBy: .Equal, toItem: self, attribute: .Trailing, multiplier: 1.0, constant: 0.0))
         addConstraint(NSLayoutConstraint(item: label, attribute: .CenterY, relatedBy: .Equal, toItem: self, attribute: .CenterY, multiplier: 1.0, constant: 0.0))
     }
-
 }
 
 private class ConditionsRejectedView: UIView {
@@ -298,5 +309,47 @@ private class ConditionsRejectedView: UIView {
         addConstraint(NSLayoutConstraint(item: label, attribute: .CenterX, relatedBy: .Equal, toItem: self, attribute: .CenterX, multiplier: 1.0, constant: 0.0))
         addConstraint(NSLayoutConstraint(item: label, attribute: .CenterY, relatedBy: .Equal, toItem: self, attribute: .CenterY, multiplier: 1.0, constant: 0.0))
     }
+}
 
+private class PaymentView: UIView {
+
+    private let callback: (() -> Void)?
+
+    init(title: String? = nil, callback: (() -> Void)? = nil) {
+
+        self.callback = callback
+        super.init(frame: CGRectZero)
+        initializeView(title: title, enabled: title != nil)
+    }
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    private func initializeView(title title: String?, enabled: Bool) {
+        translatesAutoresizingMaskIntoConstraints = false
+
+        let imageButton = UIButton(type: .Custom)
+        imageButton.translatesAutoresizingMaskIntoConstraints = false
+        imageButton.setBackgroundImage(UIImage(named: "Buy Button"), forState: .Normal)
+        imageButton.setBackgroundImage(UIImage(named: "Bought Button"), forState: .Disabled)
+        imageButton.setTitle(title, forState: .Normal)
+        imageButton.setTitle(NSLocalizedString("LocPaid", comment:""), forState: .Disabled)
+        imageButton.setTitleColor(UIColor.iphoneMainGrayColor(), forState: .Disabled)
+        imageButton.titleLabel?.font = UIFont.iphoneRegularFont(16.0)
+        imageButton.enabled = enabled
+
+        imageButton.addTarget(self, action: "payButtonPressed", forControlEvents: .TouchUpInside)
+
+        addSubview(imageButton)
+        addConstraint(NSLayoutConstraint(item: imageButton, attribute: .CenterX, relatedBy: .Equal, toItem: self, attribute: .CenterX, multiplier: 1.0, constant: 0.0))
+        addConstraint(NSLayoutConstraint(item: imageButton, attribute: .CenterY, relatedBy: .Equal, toItem: self, attribute: .CenterY, multiplier: 1.0, constant: 0.0))
+    }
+
+    @objc func payButtonPressed() {
+        print("Button pressed!")
+
+        if let callback = self.callback {
+            callback()
+        }
+    }
 }

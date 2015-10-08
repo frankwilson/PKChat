@@ -85,19 +85,21 @@
     changeRequest.payMarkup = [data[@"PayMarkup"] doubleValue];
     changeRequest.paymentTag = data[@"PaySystemTag"];
     changeRequest.paymentAccountId = data[@"PaymentAccountId"];
+    changeRequest.passengerName = data[@"PassengerName"];
+
     return [self hasCorrectChangeStatus:changeRequest] ? changeRequest : nil;
 }
 
 + (BOOL)hasCorrectChangeStatus:(ATOrderChangeRequest *)changeRequest
 {
     OrderStatusCode status = changeRequest.status;
-#if EXCHANGE_RESULTS
+//#if EXCHANGE_RESULTS
     if (status == PaymentCaptured || status == WaitingForPayment || status == PaymentComplete)
         return YES;
     else
         return (status == InProcess && [changeRequest.alertCode isEqualToString:@"ExchangeCancelExpiredPay"] && ![changeRequest isAlertClosed]);
 
-#endif
+//#endif
     return (status == PaymentCaptured);
 }
 
@@ -158,6 +160,41 @@
 @end
 
 @implementation ATOrderChangeRequest
+
+
+- (NSString *)localizedStatus
+{
+//    if ([self hasVisibleAlert]) {
+//        return [self localizedAlertMessage];
+//    }
+
+    switch (self.status)
+    {
+        case WaitingForPayment:
+            return [NSString stringWithFormat:NSLocalizedString(@"LocExchangeWaitingPayment", nil),
+                    [Utils convertedDateString:self.rapidaTimeLimitUTC
+                                    fromFormat:@"yyyy-MM-dd'T'HH:mm:ssZZZZZ"
+                                      toFormat:@"d\u00a0MMMM\u00a0yyyy, HH:mm"
+                             isSourceDateInUTC:YES]];
+
+        case PaymentCaptured:
+            return [NSString stringWithFormat:NSLocalizedString(@"LocExchangeCompleted", nil),
+                    [Utils convertedDateString:self.paymentDate
+                               fromFormatArray:@[
+                                                 @"yyyy-MM-dd'T'HH:mm",
+                                                 @"yyyy-MM-dd'T'HH:mm:ssZZZZZ"
+                                                 ]
+                                      toFormat:@"d\u00a0MMMM\u00a0yyyy"
+                             isSourceDateInUTC:NO]];
+
+        case PaymentComplete:
+            return NSLocalizedString(@"LocExchangeWillBeComplete", nil);
+
+        default:
+            return @"";
+    }
+}
+
 @end
 
 @implementation ATOrderReturnRequest

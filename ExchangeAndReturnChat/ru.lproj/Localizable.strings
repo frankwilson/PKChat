@@ -12,10 +12,15 @@
 "LocRequestFinished" = "Запрос выполнен";
 "LocRequestCancelled" = "Запрос отменен";
 
-"LocExchangeRequested" = "Ожидает рассмотрения оператором";
-"LocExchangeInProcess" = "Рассматривается оператором";
-"LocExchangeConfirmed" = "Условия подтверждены";
-"LocRejected" = "Отклонено";
+"LocExchangeRequested"      = "Ожидает рассмотрения оператором";
+"LocExchangeInProcess"      = "Рассматривается оператором";
+"LocExchangeConfirmed"      = "Условия подтверждены";
+"LocExchangeCompleted"      = "Обмен вашего билета завершён. Дата обмена: %@.";
+"LocExchangeWillBeComplete" = "Обмен вашего билета оплачен и скоро будет завершён.";
+"LocExchangeWaitingPayment" = "Оплатите, пожалуйста, ваш обмен до %@.";
+"LocReturnCompleted"        = "Возврат вашего билета завершён. Дата возврата: %@.";
+"LocRejected"               = "Отклонено";
+"LocPaid"                   = "Оплачено";
 
 "LocAccept" = "Принимаю";
 "LocContinueConversation" = "Продолжить беседу";

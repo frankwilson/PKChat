@@ -12,10 +12,14 @@
 "LocRequestFinished" = "The request is done";
 "LocRequestCancelled" = "The request is cancelled";
 
-"LocExchangeRequested" = "The request is to be processed";
-"LocExchangeInProcess" = "The request is in process";
-"LocExchangeConfirmed" = "The terms are confirmed";
-"LocRejected" = "Rejected";
+"LocExchangeRequested"      = "The request is to be processed";
+"LocExchangeInProcess"      = "The request is in process";
+"LocExchangeConfirmed"      = "The terms are confirmed";
+"LocExchangeCompleted"      = "Your ticket exchange has been completed. Еxchange date: %@.";
+"LocExchangeWillBeComplete" = "Your ticket exchange has been paid for and going to be completed soon.";
+"LocExchangeWaitingPayment" = "Please, pay for your exchange up to %@.";
+"LocRejected"               = "Rejected";
+"LocPaid"                   = "Paid";
 
 "LocAccept" = "Accept";
 "LocContinueConversation" = "Continue conversation";

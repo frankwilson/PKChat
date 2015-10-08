@@ -12,10 +12,14 @@
 "LocRequestFinished" = "Die Anfrage ist erledigt";
 "LocRequestCancelled" = "Die Anfrage ist annuliert";
 
-"LocExchangeRequested" = "Die Anfrage ist zu bearbeiten";
-"LocExchangeInProcess" = "Die Anfrage ist in Bearbeitung";
-"LocExchangeConfirmed" = "Die Bedingungen sind bestätigt";
-"LocRejected" = "Abgelehnt";
+"LocExchangeRequested"      = "Die Anfrage ist zu bearbeiten";
+"LocExchangeInProcess"      = "Die Anfrage ist in Bearbeitung";
+"LocExchangeConfirmed"      = "Die Bedingungen sind bestätigt";
+"LocExchangeCompleted"      = "Der Austausch ist vollendet. Austauschsdatum: %@.";
+"LocExchangeWillBeComplete" = "Der Austausch ist bezahlt worden und wird bald abgewickelt.";
+"LocExchangeWaitingPayment" = "Man braucht den Austausch bevor %@ zu bezahlen.";
+"LocRejected"               = "Abgelehnt";
+"LocPaid"                   = "Bezahlt";
 
 "LocAccept" = "Ich akzeptiere";
 "LocContinueConversation" = "Gespräch fortsetzen";
