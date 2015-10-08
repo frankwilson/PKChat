@@ -9,6 +9,7 @@
 import UIKit
 
 private let mainBlockWidth: CGFloat = 300
+let maxTextWidth: CGFloat = mainBlockWidth - sideCellMargin * 2
 
 private let buttonBlockHeight: CGFloat = 36
 
@@ -16,11 +17,16 @@ private let topCellMargin: CGFloat = 18.0
 private let bottomCellMargin: CGFloat = 20.0
 private let sideCellMargin: CGFloat = 20.0
 
+enum ExchangeConfirmationOption: Int {
+    case Confirmed
+    case ContinueChat
+}
+
 enum ChatConfirmationCellMode {
-    case AwaitingConfirmation
+    case AwaitingConfirmation(optionCallback: (selection: ExchangeConfirmationOption) -> Void, selection: ExchangeConfirmationOption)
     case Confirmed
     case Rejected
-    case WaitingForPayment(priceText: String)
+    case WaitingForPayment(changeRequestId: String, priceText: String, payButtonCallback: (changeRequestId: String) -> Void)
     case PaymentCaptured
     case PaymentComplete
     case InProcess
@@ -65,6 +71,18 @@ class ChatConfirmationBlockCell: UICollectionViewCell {
 
         return label
     }()
+    lazy private var descriptionLabel: UILabel = {
+        let label = UILabel()
+        label.setContentHuggingPriority(UILayoutPriorityDefaultLow, forAxis: .Horizontal)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = messageFont
+        label.textColor = UIColor.iphoneMainGrayColor()
+        label.textAlignment = .Center
+        label.numberOfLines = 0
+        label.text = NSLocalizedString("LocChangeTermsDisagreeDescription", comment: "")
+
+        return label
+    }()
     private let mainBlock: UIView = {
         let view = UIView()
         view.setContentHuggingPriority(UILayoutPriorityDefaultHigh, forAxis: .Horizontal)
@@ -78,7 +96,7 @@ class ChatConfirmationBlockCell: UICollectionViewCell {
     }()
     private let buttonBlock = ChatConfirmationButtonView()
 
-    var mode: ChatConfirmationCellMode = .AwaitingConfirmation
+    var mode: ChatConfirmationCellMode = .InProcess
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -90,27 +108,49 @@ class ChatConfirmationBlockCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    class func size(text text: String, passengerName: String?) -> CGSize {
+    override func prepareForReuse() {
+        super.prepareForReuse()
+
+        titleLabel.removeFromSuperview()
+        messageLabel.removeFromSuperview()
+        buttonBlock.removeFromSuperview()
+        passengerLabel.removeFromSuperview()
+        descriptionLabel.removeFromSuperview()
+    }
+
+    class func size(mode mode: ChatConfirmationCellMode, text: String, passengerName: String?, selection: ExchangeConfirmationOption? = .Confirmed) -> CGSize {
+
         var height = topCellMargin + bottomCellMargin
 
         // title height
         let titleText = NSLocalizedString("LocExchangeTickets", comment: "")
-        height += NSString(string: titleText).awad_boundsWithFont(titleFont, maxWidth: mainBlockWidth - sideCellMargin * 2).height
+        height += NSString(string: titleText).awad_boundsWithFont(titleFont, maxWidth: maxTextWidth).height
 
         if let passenger = passengerName {
             height += 20
-            height += NSString(string: passenger.uppercaseString).awad_boundsWithFont(passengerFont, maxWidth: mainBlockWidth - sideCellMargin * 2).height
+            height += NSString(string: passenger.uppercaseString).awad_boundsWithFont(passengerFont, maxWidth: maxTextWidth).height
         }
 
         // message height
         height += 10
-        height += NSString(string: text).awad_boundsWithFont(messageFont, maxWidth: mainBlockWidth - sideCellMargin * 2).height
+        height += NSString(string: text).awad_boundsWithFont(messageFont, maxWidth: maxTextWidth).height
+
+        if case .AwaitingConfirmation(_) = mode, let selection = selection, case .ContinueChat = selection {
+            height += additionalHeightForContinueChatMessage()
+        }
 
         // button height
         height += 15
         height += buttonBlockHeight
 
         return CGSize(width: mainBlockWidth, height: height)
+    }
+
+    class func additionalHeightForContinueChatMessage() -> CGFloat {
+        var height: CGFloat = 15
+        let descriptionText = NSLocalizedString("LocChangeTermsDisagreeDescription", comment: "")
+        height += NSString(string: descriptionText).awad_boundsWithFont(messageFont, maxWidth: maxTextWidth).height
+        return height
     }
 
     private func initializeView() {
@@ -121,18 +161,34 @@ class ChatConfirmationBlockCell: UICollectionViewCell {
         contentView.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|[mainBlock]|", options: [], metrics: nil, views: ["mainBlock": mainBlock]))
     }
 
-    func configureView(chatType chatType: ExchangeAndRefundRequestType, mode: ChatConfirmationCellMode, message: String, passengerName: String? = nil) {
+    func configureView(chatType chatType: ExchangeAndRefundRequestType, mode: ChatConfirmationCellMode, message: String, passengerName: String? = nil, selection: ExchangeConfirmationOption? = .Confirmed) {
         self.mode = mode
 
         titleLabel.text = NSLocalizedString(chatType == .Exchange ? "LocExchangeTickets" : "LocReturnTickets", comment: "")
         messageLabel.text = message
-        buttonBlock.configureView(mode)
+        var updatedMode = mode
+        // Consider it a hack that is enhancing a callback with additional functionality
+        if case .AwaitingConfirmation(let callback, let currentSelection) = mode {
+            updatedMode = .AwaitingConfirmation(optionCallback: { selection in
+                // Show or hide Continue Chat message
+                UIView.animateWithDuration(0.3, animations: {
+                    self.descriptionLabel.alpha = selection == .Confirmed ? 0.0 : 1.0
+                    if case .ContinueChat = selection {
+                        self.addConfirmationDescriptionLabel()
+                    } else {
+                        self.descriptionLabel.removeFromSuperview()
+                    }
+                }, completion: nil)
+                callback(selection: selection)
+            }, selection: currentSelection)
+        }
+        buttonBlock.configureView(updatedMode)
 
         mainBlock.addSubview(titleLabel)
         mainBlock.addSubview(messageLabel)
         mainBlock.addSubview(buttonBlock)
 
-        let labels = ["title": titleLabel, "passenger": passengerLabel, "message": messageLabel, "button": buttonBlock]
+        let labels = ["title": titleLabel, "passenger": passengerLabel, "message": messageLabel, "button": buttonBlock, "description": descriptionLabel]
         let metrics = ["top": topCellMargin, "bottom": bottomCellMargin, "buttonHeight": buttonBlockHeight]
         let format: String
         let passengerNameText: String?
@@ -142,13 +198,20 @@ class ChatConfirmationBlockCell: UICollectionViewCell {
         default:
             passengerNameText = nil
         }
-
-        if let passengerName = passengerNameText {
-            passengerLabel.text = passengerName
+        switch mode {
+        case .AwaitingConfirmation(_):
+            if let selection = selection, case .ContinueChat = selection {
+                mainBlock.addSubview(descriptionLabel)
+                format = "V:|-top-[title]-10-[message]-15-[button(buttonHeight)]-15-[description]-bottom-|"
+            } else {
+                fallthrough
+            }
+        case .Confirmed, .Rejected, .InProcess:
+            format = "V:|-top-[title]-15-[message]-15-[button(buttonHeight)]->=bottom-|"
+        case .WaitingForPayment(_, _, _), .PaymentCaptured, .PaymentComplete:
+            passengerLabel.text = passengerNameText
             mainBlock.addSubview(passengerLabel)
             format = "V:|-top-[title]-15-[passenger]-15-[message]-15-[button(buttonHeight)]-bottom-|"
-        } else {
-            format = "V:|-top-[title]-10-[message]-15-[button(buttonHeight)]-bottom-|"
         }
         mainBlock.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(format, options: [.AlignAllLeading, .AlignAllTrailing], metrics: metrics, views: labels))
         mainBlock.addConstraint(NSLayoutConstraint(item: titleLabel, attribute: .Leading, relatedBy: .Equal, toItem: mainBlock, attribute: .Leading, multiplier: 1.0, constant: sideCellMargin))
@@ -157,6 +220,12 @@ class ChatConfirmationBlockCell: UICollectionViewCell {
         layoutIfNeeded()
     }
 
+    private func addConfirmationDescriptionLabel() {
+        mainBlock.addSubview(descriptionLabel)
+        mainBlock.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:[button]-15-[description]-bottom-|", options: [], metrics: ["bottom": bottomCellMargin], views: ["button": buttonBlock, "description": descriptionLabel]))
+        mainBlock.addConstraint(NSLayoutConstraint(item: titleLabel, attribute: .Leading, relatedBy: .Equal, toItem: descriptionLabel, attribute: .Leading, multiplier: 1.0, constant: 0))
+        mainBlock.addConstraint(NSLayoutConstraint(item: titleLabel, attribute: .Trailing, relatedBy: .Equal, toItem: descriptionLabel, attribute: .Trailing, multiplier: 1.0, constant: 0))
+    }
 }
 
 private class ChatConfirmationButtonView: UIView {
@@ -180,18 +249,20 @@ private class ChatConfirmationButtonView: UIView {
         let view: UIView
 
         switch mode {
-        case .AwaitingConfirmation:
+        case let .AwaitingConfirmation(optionCallback, selection):
             // Segmented control – Accept or Continue Chat
-            view = AcceptConditionsView()
+            view = AcceptConditionsView(optionCallback: optionCallback, selection: selection)
         case .Confirmed:
             // Conditions Accepted block
             view = ConditionsAcceptedView()
         case .Rejected:
             // Conditions Rejected block
             view = ConditionsRejectedView()
-        case .WaitingForPayment(let priceText):
+        case let .WaitingForPayment(changeRequestId, priceText, callback):
             // Pay button
-            view = PaymentView(title: priceText)
+            view = PaymentView(title: priceText) {
+                callback(changeRequestId: changeRequestId)
+            }
         case .PaymentCaptured(), .PaymentComplete:
             // Dashed Payed button
             view = PaymentView()
@@ -205,21 +276,23 @@ private class ChatConfirmationButtonView: UIView {
         addConstraint(NSLayoutConstraint(item: view, attribute: .CenterX, relatedBy: .Equal, toItem: self, attribute: .CenterX, multiplier: 1.0, constant: 0.0))
         addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|[buttonView]|", options: [], metrics: nil, views: ["buttonView": view]))
     }
-
 }
 
 private class AcceptConditionsView: UIView {
 
-    init() {
+    private let optionCallback: (ExchangeConfirmationOption -> Void)?
+
+    init(optionCallback: (ExchangeConfirmationOption -> Void)?, selection: ExchangeConfirmationOption = .Confirmed) {
+        self.optionCallback = optionCallback
         super.init(frame: CGRectZero)
 
-        initializeView()
+        initializeView(selection)
     }
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    private func initializeView() {
+    private func initializeView(selection: ExchangeConfirmationOption = .Confirmed) {
         translatesAutoresizingMaskIntoConstraints = false
 
         let segmentedControl = UISegmentedControl(items: [
@@ -229,13 +302,20 @@ private class AcceptConditionsView: UIView {
         segmentedControl.tintColor = UIColor.iphoneBlueColor()
         segmentedControl.addRoundCorners(radius: 16.0, borderColor: UIColor.iphoneBlueColor())
         segmentedControl.translatesAutoresizingMaskIntoConstraints = false
-        segmentedControl.selectedSegmentIndex = 0
+        segmentedControl.selectedSegmentIndex = selection.rawValue
         segmentedControl.setTitleTextAttributes([NSFontAttributeName: UIFont.iphoneRegularFont(13.0), NSForegroundColorAttributeName: UIColor.iphoneBlueColor()], forState: .Normal)
         segmentedControl.setTitleTextAttributes([NSFontAttributeName: UIFont.iphoneRegularFont(13.0), NSForegroundColorAttributeName: UIColor.whiteColor()], forState: .Selected)
+        segmentedControl.addTarget(self, action: "optionChanged:", forControlEvents: .ValueChanged)
 
         addSubview(segmentedControl)
-        addConstraint(NSLayoutConstraint(item: segmentedControl, attribute: .CenterX, relatedBy: .Equal, toItem: self, attribute: .CenterX, multiplier: 1.0, constant: 0.0))
+        addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("H:|[control]|", options: [], metrics: nil, views: ["control": segmentedControl]))
         addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|[control]|", options: [], metrics: nil, views: ["control": segmentedControl]))
+    }
+
+    @objc private func optionChanged(control: UISegmentedControl) {
+        if let callback = self.optionCallback {
+            callback(ExchangeConfirmationOption(rawValue: control.selectedSegmentIndex)!)
+        }
     }
 }
 
@@ -328,6 +408,8 @@ private class PaymentView: UIView {
     private func initializeView(title title: String?, enabled: Bool) {
         translatesAutoresizingMaskIntoConstraints = false
 
+        addGestureRecognizer(UITapGestureRecognizer(target: self, action: "payButtonPressed"))
+
         let imageButton = UIButton(type: .Custom)
         imageButton.translatesAutoresizingMaskIntoConstraints = false
         imageButton.setBackgroundImage(UIImage(named: "Buy Button"), forState: .Normal)
@@ -341,8 +423,8 @@ private class PaymentView: UIView {
         imageButton.addTarget(self, action: "payButtonPressed", forControlEvents: .TouchUpInside)
 
         addSubview(imageButton)
-        addConstraint(NSLayoutConstraint(item: imageButton, attribute: .CenterX, relatedBy: .Equal, toItem: self, attribute: .CenterX, multiplier: 1.0, constant: 0.0))
-        addConstraint(NSLayoutConstraint(item: imageButton, attribute: .CenterY, relatedBy: .Equal, toItem: self, attribute: .CenterY, multiplier: 1.0, constant: 0.0))
+        addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("H:|[button]|", options: [], metrics: nil, views: ["button": imageButton]))
+        addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|[button]|", options: [], metrics: nil, views: ["button": imageButton]))
     }
 
     @objc func payButtonPressed() {

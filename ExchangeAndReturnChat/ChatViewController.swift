@@ -85,6 +85,7 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
     var request: ExchangeAndRefundRequest
 
 //    private var state = ChatState.Requested
+    private var confirmationBlockMode: ExchangeConfirmationOption?
 
     private let layout = UICollectionViewFlowLayout()
 
@@ -152,14 +153,14 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
         let message = request.messages[indexPath.section]
         if indexPath.row == message.files.count, let text = message.text {
             if message.requestStatus == .AwaitingConfirmation {
-                cellSize = ChatConfirmationBlockCell.size(text: text, passengerName: nil)
+                cellSize = ChatConfirmationBlockCell.size(mode: .AwaitingConfirmation(optionCallback: {selection in }, selection: confirmationBlockMode ?? .Confirmed), text: text, passengerName: nil, selection: confirmationBlockMode)
             } else {
                 cellSize.height = ChatCollectionViewCell.size(text: text, maxWidth: maxBubbleWidth(), documentStyle: false).height
             }
         } else if indexPath.row > message.files.count && request.changeRequests.count > 0 {
             let requestIndex = indexPath.row - (message.text != nil ? 1 : 0) - message.files.count
             let currentChangeRequest = request.changeRequests[requestIndex]
-            cellSize = ChatConfirmationBlockCell.size(text: currentChangeRequest.localizedStatus(), passengerName: currentChangeRequest.passengerName)
+            cellSize = ChatConfirmationBlockCell.size(mode: .PaymentComplete, text: currentChangeRequest.localizedStatus(), passengerName: currentChangeRequest.passengerName)
         } else if case .OtherFile(let fileName) = message.files[indexPath.row] {
             cellSize.height = ChatCollectionViewCell.size(text: fileName, maxWidth: maxBubbleWidth(), documentStyle: true).height
         } else if case .Image(let image) = message.files[indexPath.row] {
@@ -263,18 +264,23 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
         switch message.requestStatus {
         case .AwaitingConfirmation:
             if let nextMessage = nextMessage {
-                if nextMessage.requestStatus == .Confirmed {
-                    cellMode = .Confirmed
-                } else {
-                    cellMode = .Rejected
-                }
+                cellMode = nextMessage.requestStatus == .Confirmed ? .Confirmed : .Rejected
             } else {
-                cellMode = .AwaitingConfirmation
+                cellMode = ChatConfirmationCellMode.AwaitingConfirmation(optionCallback: { selection in
+                    self.confirmationBlockMode = selection
+                    self.layout.invalidateLayout()
+                    if case .ContinueChat = selection {
+                        let messageIndex = self.request.messages.indexOf({ $0.id == message.id })!
+                        let itemIndex = self.collectionView(self.collectionView!, numberOfItemsInSection: messageIndex) - 1
+                        let indexPath = NSIndexPath(forRow: itemIndex, inSection: messageIndex)
+                        self.collectionView?.scrollToItemAtIndexPath(indexPath, atScrollPosition: .Bottom, animated: true)
+                    }
+                }, selection: confirmationBlockMode ?? .Confirmed)
             }
         case .Confirmed:
             cellMode = .Confirmed
         default:
-            cellMode = .AwaitingConfirmation
+            cellMode = .InProcess
         }
 
         cell.configureView(chatType: request.type, mode: cellMode, message: message.text!)
@@ -290,7 +296,9 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
             // FIXME: Get price from a ChangeRequest
             let value = NSNumber(double: 342.05)
             let priceText = priceFormatter.stringFromNumber(value)!
-            cellMode = ChatConfirmationCellMode.WaitingForPayment(priceText: priceText)
+            cellMode = ChatConfirmationCellMode.WaitingForPayment(changeRequestId: changeRequest.changeId, priceText: priceText, payButtonCallback: { changeRequestId in
+                // TODO: Pay Button Pressed
+            })
         } else if changeRequest.status == .PaymentCaptured {
             cellMode = .PaymentComplete
         } else if changeRequest.status == .PaymentComplete {

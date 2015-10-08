@@ -29,7 +29,7 @@ class ViewController: UIViewController {
             ChatMessage(id: 808367, date: formatter.dateFromString("2015-08-14T13:10:57.67Z")!, text: "Нет, у нас только дубовые!", files: [.OtherFile(fileName: "Frak you, Spielberg!.docx")], requestStatus: .Answered, author: .Operator),
             ChatMessage(id: 808368, date: formatter.dateFromString("2015-08-14T13:11:43.03Z")!, text: "Хм, но как же так... А у меня есть какой-нибудь выбор?", files: [.Image(image: image01), .OtherFile(fileName: "How To Sheet In The Woods.pdf")], requestStatus: .Requested, author: .Client),
             ChatMessage(id: 808369, date: formatter.dateFromString("2015-08-14T13:13:42.32Z")!, text: "Конечно, у вас есть выбор! Взять дубовые, или пойти и выкоречевать ольху. Ведь все дубы пошли на плинтуса, а ольха нет!", requestStatus: .AwaitingConfirmation, author: .Operator),
-            ChatMessage(id: 808420, date: formatter.dateFromString("2015-08-14T13:18:33.39Z")!, text: "I'll take it from here.", files: [.Image(image: image02)], requestStatus: .Confirmed, author: .Client),
+//            ChatMessage(id: 808420, date: formatter.dateFromString("2015-08-14T13:18:33.39Z")!, text: "I'll take it from here.", files: [.Image(image: image02)], requestStatus: .Confirmed, author: .Client),
 //            ChatMessage(id: 808420, date: formatter.dateFromString("2015-08-14T13:18:33.39Z")!, text: "Ну и ладно. Оставайтесь при своих.", files: [.Image(image: image02)], requestStatus: .Requested, author: .Client),
 //            ChatMessage(id: 808367, date: formatter.dateFromString("2015-08-14T13:10:57.67Z")!, text: "Непременно!", requestStatus: .Answered, author: .Operator),
         ]
