@@ -31,6 +31,11 @@ class ChatSendMessagePanel: UIView {
             updateWithNewState()
         }
     }
+    var enableSendButton = false {
+        didSet {
+            composeView.enableSendButton = enableSendButton
+        }
+    }
     private let statusLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.iphoneDefaultFont(17.0)
@@ -166,13 +171,19 @@ private class ComposeView: UIView, UITextViewDelegate {
         // TODO: This could be applied application-wide
         button.setTitleColor(UIColor.iphoneBlueColor(), forState: .Normal)
         button.setTitleColor(UIColor.iphoneMainGrayColor(), forState: .Disabled)
+        button.enabled = false
 
         return button
     }()
+    private var enableSendButton = false {
+        didSet {
+            enableSendButtonIfNeeded()
+        }
+    }
     private var textViewHeightConstraint: NSLayoutConstraint!
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    init() {
+        super.init(frame: CGRectZero)
 
         sendButton.addTarget(self, action: "sendButtonPressed", forControlEvents: .TouchUpInside)
         attachButton.addTarget(self, action: "attachButtonPressed", forControlEvents: .TouchUpInside)
@@ -216,6 +227,10 @@ private class ComposeView: UIView, UITextViewDelegate {
         NSLog("Send button pressed")
     }
 
+    private func enableSendButtonIfNeeded() {
+        sendButton.enabled = enableSendButton || textView.text.stringByTrimmingCharactersInSet(.whitespaceAndNewlineCharacterSet()).characters.count > 0
+    }
+
     // MARK: Text view delegate
     private func enableTextViewContentSizeObserver(enable: Bool) {
         if enable {
@@ -244,8 +259,11 @@ private class ComposeView: UIView, UITextViewDelegate {
     }
 
     @objc func textView(textView: UITextView, shouldChangeTextInRange range: NSRange, replacementText text: String) -> Bool {
-        if textView.text.characters.count > 0 && text == "\n" {
-            if range.location > 0 && textView.text[textView.text.startIndex.advancedBy(range.location - 1)] == "\n" {
+        if text == "\n" {
+            if textView.text.characters.count == 0 {
+                // Pointless to add new line as first character
+                return false;
+            } else if range.location > 0 && textView.text[textView.text.startIndex.advancedBy(range.location - 1)] == "\n" {
                 // Character before
                 return false;
             } else if textView.text.characters.count > range.location && textView.text[textView.text.startIndex.advancedBy(range.location)] == "\n" {
@@ -254,6 +272,9 @@ private class ComposeView: UIView, UITextViewDelegate {
             }
         }
         return true;
+    }
+    @objc func textViewDidChange(textView: UITextView) {
+        enableSendButtonIfNeeded()
     }
 }
 

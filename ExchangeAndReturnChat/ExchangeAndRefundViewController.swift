@@ -15,7 +15,14 @@ class ExchangeAndRefundViewController: UIViewController {
 
     private let request: ExchangeAndRefundRequest
 
+    /// Constraint used to move the bottom panel up when displaying keyboard
     private var bottomPanelBottomConstraint: NSLayoutConstraint!
+
+    private var attachments = [AnyObject]() {
+        didSet {
+            bottomPanel.enableSendButton = attachments.count > 0
+        }
+    }
 
     init(request: ExchangeAndRefundRequest) {
         self.request = request
@@ -68,6 +75,8 @@ class ExchangeAndRefundViewController: UIViewController {
         case .Other:
             bottomPanel.state = .Disabled
         }
+
+        bottomPanel.enableSendButton = attachments.count > 0
 
         addChildViewController(chatController)
         view.addSubview(chatController.view)
