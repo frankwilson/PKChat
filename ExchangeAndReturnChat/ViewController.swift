@@ -97,8 +97,8 @@ class ViewController: UIViewController {
             "RequestType": "CHANGE",
             "Reason": "ILLNESS",
 //            "Status": "CANCELED"
-            "Status": "CONFIRMED"
-//            "Status": "AWAITING_CONFIRM"
+//            "Status": "CONFIRMED"
+            "Status": "AWAITING_CONFIRM"
 //            "Status": "REQUESTED"
 //            "Status": "ANSWERED"
 //            "Status": "FINISHED"

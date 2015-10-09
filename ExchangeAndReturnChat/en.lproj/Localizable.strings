@@ -23,4 +23,5 @@
 
 "LocAccept" = "Accept";
 "LocContinueConversation" = "Continue conversation";
+"LocConfirmChoice" = "Confirm the choice";
 "LocChangeTermsDisagreeDescription" = "Indicate in your message why you are not ok with this option. Afterwards we will be able to offer you something else";

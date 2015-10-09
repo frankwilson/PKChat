@@ -40,6 +40,7 @@ class ChatSendMessagePanel: UIView {
         return label
     }()
     private let composeView = ComposeView()
+    lazy private var confirmView: ConfirmButtonView = ConfirmButtonView()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -50,16 +51,42 @@ class ChatSendMessagePanel: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    func presentConfirmationButton(show: Bool, animated: Bool) {
+        if show {
+            addSubview(confirmView)
+            let topConstraint = NSLayoutConstraint(item: confirmView, attribute: .Top, relatedBy: .Equal, toItem: self, attribute: .Top, multiplier: 1.0, constant: animated ? self.bounds.size.height : 0.0)
+            addConstraint(topConstraint)
+            addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("H:|[confirmView]|", options: [], metrics: nil, views: ["confirmView": confirmView]))
+            self.superview!.layoutIfNeeded()
+            if animated {
+                UIView.animateWithDuration(0.3) {
+                    topConstraint.constant = 0.0
+                    self.composeView.textViewHeightConstraint.constant = minTextViewHeight
+                    self.superview!.layoutIfNeeded()
+                }
+            }
+        } else if animated {
+            for constraint in self.constraints where constraint.firstAttribute == .Top && constraint.firstItem === confirmView {
+                self.removeConstraint(constraint)
+                break
+            }
+            let topConstraint = NSLayoutConstraint(item: confirmView, attribute: .Top, relatedBy: .Equal, toItem: self, attribute: .Bottom, multiplier: 1.0, constant: -self.bounds.size.height)
+            addConstraint(topConstraint)
+            UIView.animateWithDuration(0.3, animations: {
+                topConstraint.constant = 0.0
+                self.composeView.resizeTextView(self.composeView.textView)
+                self.superview!.layoutIfNeeded()
+            }, completion: { completed in
+                self.confirmView.removeFromSuperview()
+            })
+        } else {
+            confirmView.removeFromSuperview()
+        }
+    }
+
     private func initializeView() {
         backgroundColor = UIColor.iphoneMainNavbarColor()
         translatesAutoresizingMaskIntoConstraints = false
-
-        let topLineView = UIView()
-        topLineView.backgroundColor = UIColor.iphoneTroutColor()
-        topLineView.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(topLineView)
-        addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("|[line]|", options: [], metrics: nil, views: ["line": topLineView]))
-        addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|[line(1)]", options: [], metrics: nil, views: ["line": topLineView]))
 
         addSubview(composeView)
         addSubview(statusLabel)
@@ -69,6 +96,8 @@ class ChatSendMessagePanel: UIView {
 
         addConstraint(NSLayoutConstraint(item: statusLabel, attribute: .CenterX, relatedBy: .Equal, toItem: self, attribute: .CenterX, multiplier: 1.0, constant: 0.0))
         addConstraint(NSLayoutConstraint(item: statusLabel, attribute: .CenterY, relatedBy: .Equal, toItem: self, attribute: .CenterY, multiplier: 1.0, constant: 0.0))
+
+        addHorizontalSeparatorLine(.Top)
     }
 
     private func updateWithNewState() {
@@ -173,11 +202,10 @@ private class ComposeView: UIView, UITextViewDelegate {
 
         addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("|-5-[attachButton(44)]-5-[textView]-8-[sendButton]-8-|", options: [], metrics: nil, views: views))
         addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|-8-[textView]-8-|", options: [], metrics: nil, views: views))
-        addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:[attachButton(44)]-5-|", options: [], metrics: nil, views: views))
-        addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:[sendButton(44)]-5-|", options: [], metrics: nil, views: views))
+        addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|->=0-[attachButton(44)]-<=5-|", options: [], metrics: nil, views: views))
+        addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|->=0-[sendButton(44)]-<=5-|", options: [], metrics: nil, views: views))
 
-        textViewHeightConstraint = NSLayoutConstraint(item: textView, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1.0, constant: minTextViewHeight)
-        addConstraint(textViewHeightConstraint)
+        textViewHeightConstraint = textView.constrainHeight(minTextViewHeight)
     }
 
     @objc private func attachButtonPressed() {
@@ -197,17 +225,21 @@ private class ComposeView: UIView, UITextViewDelegate {
         }
     }
 
+    private func resizeTextView(textView: UITextView) {
+        let contentSize = textView.contentSize
+
+        if contentSize.height < minTextViewHeight || textView.text.characters.count == 0 {
+            self.textViewHeightConstraint.constant = minTextViewHeight
+        } else if contentSize.height <= maxTextViewHeight {
+            self.textViewHeightConstraint.constant = contentSize.height
+        }
+    }
+
     override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
         guard let textView = object as? UITextView else {
             return
         }
-        let newValue = textView.contentSize
-
-        if newValue.height < minTextViewHeight {
-            self.textViewHeightConstraint.constant = minTextViewHeight
-        } else if newValue.height <= maxTextViewHeight {
-            self.textViewHeightConstraint.constant = newValue.height
-        }
+        resizeTextView(textView)
         textView.layoutIfNeeded()
     }
 
@@ -223,5 +255,31 @@ private class ComposeView: UIView, UITextViewDelegate {
         }
         return true;
     }
+}
 
+private class ConfirmButtonView: UIView {
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+
+        initializeView()
+    }
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    private func initializeView() {
+        backgroundColor = UIColor.iphoneMainNavbarColor()
+        translatesAutoresizingMaskIntoConstraints = false
+
+        constrainHeight(44.0)
+
+        let button = UIButton.withRoundCorners(title: NSLocalizedString("LocConfirmChoice", comment: ""), width: 200.0)
+
+        addSubview(button)
+        addConstraint(NSLayoutConstraint(item: button, attribute: .CenterX, relatedBy: .Equal, toItem: self, attribute: .CenterX, multiplier: 1.0, constant: 0.0))
+        addConstraint(NSLayoutConstraint(item: button, attribute: .CenterY, relatedBy: .Equal, toItem: self, attribute: .CenterY, multiplier: 1.0, constant: 0.0))
+
+        addHorizontalSeparatorLine(.Top)
+    }
 }

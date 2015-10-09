@@ -15,7 +15,7 @@ private let buttonBlockHeight: CGFloat = 36
 
 private let topCellMargin: CGFloat = 18.0
 private let bottomCellMargin: CGFloat = 20.0
-private let sideCellMargin: CGFloat = 20.0
+private let sideCellMargin: CGFloat = 8.0
 
 enum ExchangeConfirmationOption: Int {
     case Confirmed
@@ -175,10 +175,13 @@ class ChatConfirmationBlockCell: UICollectionViewCell {
                     self.descriptionLabel.alpha = selection == .Confirmed ? 0.0 : 1.0
                     if case .ContinueChat = selection {
                         self.addConfirmationDescriptionLabel()
-                    } else {
+                    }
+                    self.superview!.layoutIfNeeded()
+                }, completion: { completed in
+                    if case .Confirmed = selection {
                         self.descriptionLabel.removeFromSuperview()
                     }
-                }, completion: nil)
+                })
                 callback(selection: selection)
             }, selection: currentSelection)
         }
@@ -201,11 +204,9 @@ class ChatConfirmationBlockCell: UICollectionViewCell {
         switch mode {
         case .AwaitingConfirmation(_):
             if let selection = selection, case .ContinueChat = selection {
-                mainBlock.addSubview(descriptionLabel)
-                format = "V:|-top-[title]-10-[message]-15-[button(buttonHeight)]-15-[description]-bottom-|"
-            } else {
-                fallthrough
+                self.addConfirmationDescriptionLabel()
             }
+            fallthrough
         case .Confirmed, .Rejected, .InProcess:
             format = "V:|-top-[title]-15-[message]-15-[button(buttonHeight)]->=bottom-|"
         case .WaitingForPayment(_, _, _), .PaymentCaptured, .PaymentComplete:
@@ -410,14 +411,7 @@ private class PaymentView: UIView {
 
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: "payButtonPressed"))
 
-        let imageButton = UIButton(type: .Custom)
-        imageButton.translatesAutoresizingMaskIntoConstraints = false
-        imageButton.setBackgroundImage(UIImage(named: "Buy Button"), forState: .Normal)
-        imageButton.setBackgroundImage(UIImage(named: "Bought Button"), forState: .Disabled)
-        imageButton.setTitle(title, forState: .Normal)
-        imageButton.setTitle(NSLocalizedString("LocPaid", comment:""), forState: .Disabled)
-        imageButton.setTitleColor(UIColor.iphoneMainGrayColor(), forState: .Disabled)
-        imageButton.titleLabel?.font = UIFont.iphoneRegularFont(16.0)
+        let imageButton = UIButton.buyButton(title: title)
         imageButton.enabled = enabled
 
         imageButton.addTarget(self, action: "payButtonPressed", forControlEvents: .TouchUpInside)

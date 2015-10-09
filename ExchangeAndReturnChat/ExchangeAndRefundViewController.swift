@@ -31,6 +31,8 @@ class ExchangeAndRefundViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        view.backgroundColor = UIColor.greenColor()
+
         configureTitleView()
         configureBottomPanel()
         regsterKeyboardNotifications()
@@ -69,8 +71,16 @@ class ExchangeAndRefundViewController: UIViewController {
 
         addChildViewController(chatController)
         view.addSubview(chatController.view)
-
         view.addSubview(bottomPanel)
+
+        // Bottom panel's Confirm button
+        chatController.confirmationChangedCallback = { selection in
+            self.bottomPanel.presentConfirmationButton(selection == .Confirmed, animated: true)
+        }
+        if let message = request.messages.last where message.requestStatus == .AwaitingConfirmation {
+            bottomPanel.presentConfirmationButton(true, animated: false)
+        }
+
         view.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("H:|[bottomPanel]|", options: [], metrics: nil, views: ["bottomPanel": bottomPanel]))
         view.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|[chat][bottomPanel]", options: [.AlignAllLeading, .AlignAllTrailing], metrics: nil, views: ["chat": chatController.view, "bottomPanel": bottomPanel]))
         bottomPanelBottomConstraint = NSLayoutConstraint(item: view, attribute: .Bottom, relatedBy: .Equal, toItem: bottomPanel, attribute: .Bottom, multiplier: 1.0, constant: 0.0)

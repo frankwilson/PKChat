@@ -30,6 +30,7 @@
 		9D8544561BBA968300AA9834 /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8544551BBA968300AA9834 /* ChatViewController.swift */; settings = {ASSET_TAGS = (); }; };
 		9D85445A1BBAA4BD00AA9834 /* ChatCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8544591BBAA4BD00AA9834 /* ChatCollectionViewCell.swift */; settings = {ASSET_TAGS = (); }; };
 		9D8544601BBC113000AA9834 /* NSString+Awad.m in Sources */ = {isa = PBXBuildFile; fileRef = 9D85445F1BBC113000AA9834 /* NSString+Awad.m */; settings = {ASSET_TAGS = (); }; };
+		9DD9606C1BC7D5A000F5FC2A /* UIButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DD9606B1BC7D5A000F5FC2A /* UIButton.swift */; settings = {ASSET_TAGS = (); }; };
 		9DD9C1F31BC27827007D2BAE /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DD9C1F21BC27827007D2BAE /* Utils.swift */; settings = {ASSET_TAGS = (); }; };
 /* End PBXBuildFile section */
 
@@ -92,6 +93,7 @@
 		9D85445C1BBAE87F00AA9834 /* ExchangeAndReturnChat-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ExchangeAndReturnChat-Bridging-Header.h"; sourceTree = "<group>"; };
 		9D85445E1BBC113000AA9834 /* NSString+Awad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Awad.h"; sourceTree = "<group>"; };
 		9D85445F1BBC113000AA9834 /* NSString+Awad.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+Awad.m"; sourceTree = "<group>"; };
+		9DD9606B1BC7D5A000F5FC2A /* UIButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIButton.swift; sourceTree = "<group>"; };
 		9DD9C1F21BC27827007D2BAE /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -143,6 +145,7 @@
 				9D76F0011BBD906B0082F14E /* UIFont.swift */,
 				9DD9C1F21BC27827007D2BAE /* Utils.swift */,
 				9D6845931BC51978004B4FCC /* UIView.swift */,
+				9DD9606B1BC7D5A000F5FC2A /* UIButton.swift */,
 			);
 			name = Chat;
 			sourceTree = "<group>";
@@ -351,6 +354,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9DD9606C1BC7D5A000F5FC2A /* UIButton.swift in Sources */,
 				9D6845941BC51978004B4FCC /* UIView.swift in Sources */,
 				9D8544601BBC113000AA9834 /* NSString+Awad.m in Sources */,
 				9D85442A1BBA94AF00AA9834 /* ViewController.swift in Sources */,

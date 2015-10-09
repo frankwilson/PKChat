@@ -23,4 +23,5 @@
 
 "LocAccept" = "Принимаю";
 "LocContinueConversation" = "Продолжить беседу";
+"LocConfirmChoice" = "Подтвердите выбор";
 "LocChangeTermsDisagreeDescription" = "Укажите в сообщении, почему вас не устроил этот вариант. Только после этого мы сможем предложить вам что-то еще.";

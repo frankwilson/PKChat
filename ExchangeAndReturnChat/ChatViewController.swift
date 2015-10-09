@@ -84,6 +84,8 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
 
     var request: ExchangeAndRefundRequest
 
+    var confirmationChangedCallback: (ExchangeConfirmationOption -> Void)?
+
 //    private var state = ChatState.Requested
     private var confirmationBlockMode: ExchangeConfirmationOption?
 
@@ -267,14 +269,16 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
                 cellMode = nextMessage.requestStatus == .Confirmed ? .Confirmed : .Rejected
             } else {
                 cellMode = ChatConfirmationCellMode.AwaitingConfirmation(optionCallback: { selection in
-                    self.confirmationBlockMode = selection
-                    self.layout.invalidateLayout()
-                    if case .ContinueChat = selection {
-                        let messageIndex = self.request.messages.indexOf({ $0.id == message.id })!
-                        let itemIndex = self.collectionView(self.collectionView!, numberOfItemsInSection: messageIndex) - 1
-                        let indexPath = NSIndexPath(forRow: itemIndex, inSection: messageIndex)
-                        self.collectionView?.scrollToItemAtIndexPath(indexPath, atScrollPosition: .Bottom, animated: true)
-                    }
+                    self.collectionView?.performBatchUpdates({
+                        self.confirmationBlockMode = selection
+                        self.confirmationChangedCallback?(selection)
+                    }, completion: { finished in })
+
+                    let messageIndex = self.request.messages.indexOf({ $0.id == message.id })!
+                    let itemIndex = self.collectionView(self.collectionView!, numberOfItemsInSection: messageIndex) - 1
+                    let indexPath = NSIndexPath(forRow: itemIndex, inSection: messageIndex)
+                    self.collectionView?.scrollToItemAtIndexPath(indexPath, atScrollPosition: .Bottom, animated: true)
+
                 }, selection: confirmationBlockMode ?? .Confirmed)
             }
         case .Confirmed:
@@ -283,7 +287,7 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
             cellMode = .InProcess
         }
 
-        cell.configureView(chatType: request.type, mode: cellMode, message: message.text!)
+        cell.configureView(chatType: request.type, mode: cellMode, message: message.text!, selection: self.confirmationBlockMode)
     }
 
     private func configurePaymentCell(cell: ChatConfirmationBlockCell, changeRequest: ATOrderChangeRequest) {
