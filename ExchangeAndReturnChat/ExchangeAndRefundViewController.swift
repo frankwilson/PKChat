@@ -8,17 +8,20 @@
 
 import UIKit
 
-class ExchangeAndRefundViewController: UIViewController {
+class ExchangeAndRefundViewController: UIViewController, ChatMessagePanelDelegate {
 
     private let chatController: ChatViewController
-    private let bottomPanel = ChatSendMessagePanel()
+    lazy private var bottomPanel: ChatSendMessagePanel = {
+        let panel = ChatSendMessagePanel(delegate: self)
+        return panel
+    }()
 
-    private let request: ExchangeAndRefundRequest
+    private var request: ExchangeAndRefundRequest
 
     /// Constraint used to move the bottom panel up when displaying keyboard
     private var bottomPanelBottomConstraint: NSLayoutConstraint!
 
-    private var attachments = [AnyObject]() {
+    private var attachments = [MessageFile]() {
         didSet {
             bottomPanel.enableSendButton = attachments.count > 0
         }
@@ -38,11 +41,17 @@ class ExchangeAndRefundViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        view.backgroundColor = UIColor.greenColor()
-
+        configureChat()
         configureTitleView()
         configureBottomPanel()
         regsterKeyboardNotifications()
+    }
+
+    private func configureChat() {
+        // Bottom panel's Confirm button
+        chatController.confirmationChangedCallback = { selection in
+            self.bottomPanel.presentConfirmationButton(selection == .Confirmed, animated: true)
+        }
     }
 
     private func configureTitleView() {
@@ -82,10 +91,6 @@ class ExchangeAndRefundViewController: UIViewController {
         view.addSubview(chatController.view)
         view.addSubview(bottomPanel)
 
-        // Bottom panel's Confirm button
-        chatController.confirmationChangedCallback = { selection in
-            self.bottomPanel.presentConfirmationButton(selection == .Confirmed, animated: true)
-        }
         if let message = request.messages.last where message.requestStatus == .AwaitingConfirmation {
             bottomPanel.presentConfirmationButton(true, animated: false)
         }
@@ -94,6 +99,30 @@ class ExchangeAndRefundViewController: UIViewController {
         view.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|[chat][bottomPanel]", options: [.AlignAllLeading, .AlignAllTrailing], metrics: nil, views: ["chat": chatController.view, "bottomPanel": bottomPanel]))
         bottomPanelBottomConstraint = NSLayoutConstraint(item: view, attribute: .Bottom, relatedBy: .Equal, toItem: bottomPanel, attribute: .Bottom, multiplier: 1.0, constant: 0.0)
         view.addConstraint(bottomPanelBottomConstraint)
+    }
+
+    // MARK: Chat Message Panel Delegate
+    func sendMessage(message: String) {
+        bottomPanel.state = .Sending
+        request.messages.append(ChatMessage(id: .None, date: NSDate(), text: message, files: attachments, requestStatus: .Requested, author: .Client))
+        chatController.request = request
+        dispatch_async(dispatch_get_main_queue()) {
+            for stage in 1...20 {
+                delay(Double(stage) * 0.2) {
+                    let percent = 5.0 * Float(stage) / 100
+                    self.bottomPanel.progressBar?.progress = percent
+                    print("Set percent to \(percent)")
+                    if stage == 20 {
+//                        self.bottomPanel.state = .Failed
+//                        self.chatController.messageSendingFailed = true
+                        self.bottomPanel.state = .Sent
+                        delay(2.0) {
+                            self.bottomPanel.state = .AwaitingReview
+                        }
+                    }
+                }
+            }
+        }
     }
 
     // MARK: Keaboard notification listeners

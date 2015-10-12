@@ -15,6 +15,9 @@
 "LocExchangeRequested"      = "Ожидает рассмотрения оператором";
 "LocExchangeInProcess"      = "Рассматривается оператором";
 "LocExchangeConfirmed"      = "Условия подтверждены";
+"LocExchangeSendingMsg"     = "Отправка сообщения";
+"LocExchangeMsgSent"        = "Сообщение отправлено";
+"LocExchangeTryLater"       = "Повторите попытку позже";
 "LocExchangeCompleted"      = "Обмен вашего билета завершён. Дата обмена: %@.";
 "LocExchangeWillBeComplete" = "Обмен вашего билета оплачен и скоро будет завершён.";
 "LocExchangeWaitingPayment" = "Оплатите, пожалуйста, ваш обмен до %@.";

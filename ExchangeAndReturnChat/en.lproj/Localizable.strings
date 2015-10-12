@@ -15,6 +15,9 @@
 "LocExchangeRequested"      = "The request is to be processed";
 "LocExchangeInProcess"      = "The request is in process";
 "LocExchangeConfirmed"      = "The terms are confirmed";
+"LocExchangeSendingMsg"     = "Sending message";
+"LocExchangeMsgSent"        = "Message sent";
+"LocExchangeTryLater"       = "Try again later";
 "LocExchangeCompleted"      = "Your ticket exchange has been completed. Еxchange date: %@.";
 "LocExchangeWillBeComplete" = "Your ticket exchange has been paid for and going to be completed soon.";
 "LocExchangeWaitingPayment" = "Please, pay for your exchange up to %@.";

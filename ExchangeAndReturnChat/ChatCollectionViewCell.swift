@@ -24,10 +24,19 @@ private let clientBubbleTextInsets = UIEdgeInsets(top: 5.0, left: 10.0, bottom: 
 private let operatorBubbleTextInsets = UIEdgeInsets(top: 5.0, left: 15.0, bottom: 5.0, right: 10.0)
 
 private let documentBubbleTextLeftInset: CGFloat = 28
+private let failedBubbleRightInset: CGFloat = 32
 
 class ChatCollectionViewCell: UICollectionViewCell {
 
     var maxBubbleWidth: CGFloat = 0.0
+    /// Present a cell as Failed to send
+    var failed = false {
+        didSet {
+            if oldValue != failed {
+                markAsFailed()
+            }
+        }
+    }
 
     private var position = ChatElementPosition.Left
     private var text: String?
@@ -57,6 +66,7 @@ class ChatCollectionViewCell: UICollectionViewCell {
         return imageView
     }()
     private var documentImageView: UIImageView?
+    private var warningButtonImageView: UIButton?
     private let bubbleView = BubbleView()
 
     override init(frame: CGRect) {
@@ -95,6 +105,7 @@ class ChatCollectionViewCell: UICollectionViewCell {
         if documentStyle {
             horizontalInsets += documentBubbleTextLeftInset
         }
+
         var verticalInsets = insets.top + insets.bottom
         if documentStyle {
             verticalInsets *= 2
@@ -148,7 +159,7 @@ class ChatCollectionViewCell: UICollectionViewCell {
         }
         displayDocumentImage(documentStyle)
 
-        let offset = floor(bounds.size.width - bubbleWidth)
+        let offset = floor(bounds.size.width - bubbleWidth - (failed ? failedBubbleRightInset : 0.0))
 
         bubbleWidthConstraint.constant = bubbleWidth
         bubbleLeagingConstraint.constant = position == .Left ? 0 : offset
@@ -172,7 +183,7 @@ class ChatCollectionViewCell: UICollectionViewCell {
         self.updateConstraintsIfNeeded()
     }
 
-    func displayDocumentImage(display: Bool) {
+    private func displayDocumentImage(display: Bool) {
 
         documentImageView?.removeFromSuperview()
         if display {
@@ -189,6 +200,29 @@ class ChatCollectionViewCell: UICollectionViewCell {
             bubbleView.addSubview(imageView)
             bubbleView.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("H:|-left-[image]", options: [], metrics: ["left": leftOffset], views: ["image": imageView]))
             bubbleView.addConstraint(NSLayoutConstraint(item: imageView, attribute: .CenterY, relatedBy: .Equal, toItem: bubbleView, attribute: .CenterY, multiplier: 1.0, constant: 0.0))
+        }
+    }
+
+    private func markAsFailed() {
+        if failed {
+            let warningButton = UIButton(type: .Custom)
+            warningButton.setBackgroundImage(UIImage(named: "Warning Sign"), forState: .Normal)
+            warningButton.translatesAutoresizingMaskIntoConstraints = false
+            contentView.addSubview(warningButton)
+            contentView.addConstraint(NSLayoutConstraint(item: warningButton, attribute: .Trailing, relatedBy: .Equal, toItem: contentView, attribute: .Trailing, multiplier: 1.0, constant: 0.0))
+            contentView.addConstraint(NSLayoutConstraint(item: warningButton, attribute: .Bottom, relatedBy: .Equal, toItem: contentView, attribute: .Bottom, multiplier: 1.0, constant: 0.0))
+            warningButtonImageView = warningButton
+            UIView.animateWithDuration(0.1) {
+                self.bubbleLeagingConstraint.constant -= failedBubbleRightInset
+                self.layoutIfNeeded()
+            }
+        } else {
+            warningButtonImageView?.removeFromSuperview()
+            warningButtonImageView = nil
+            UIView.animateWithDuration(0.1) {
+                self.bubbleLeagingConstraint.constant += failedBubbleRightInset
+                self.layoutIfNeeded()
+            }
         }
     }
 

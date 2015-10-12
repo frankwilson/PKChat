@@ -50,7 +50,7 @@ struct ExchangeAndRefundRequest {
     /// List of File IDs by Chat Message ID
     let files: [Int: String]
     let changeRequests: [ATOrderChangeRequest]
-    let messages: [ChatMessage]
+    var messages: [ChatMessage]
 
     enum ParseError: ErrorType, CustomStringConvertible {
         case RequestId

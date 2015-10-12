@@ -63,14 +63,14 @@ enum MessageFile {
 }
 
 struct ChatMessage {
-    let id: Int
+    let id: Int? // Don't have an ID when creating a Send request
     let date: NSDate
     let text: String?
     let files: [MessageFile]
     let requestStatus: ExchangeAndRefundRequestStatus
     let authorType: MessageAuthorType
 
-    init(id: Int, date: NSDate, text: String? = nil, files: [MessageFile]? = nil, requestStatus: ExchangeAndRefundRequestStatus, author: MessageAuthorType) {
+    init(id: Int?, date: NSDate, text: String? = nil, files: [MessageFile]? = nil, requestStatus: ExchangeAndRefundRequestStatus, author: MessageAuthorType) {
         self.id = id
         self.date = date
         self.text = text
@@ -82,12 +82,29 @@ struct ChatMessage {
 
 class ChatViewController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
 
-    var request: ExchangeAndRefundRequest
+    var request: ExchangeAndRefundRequest {
+        didSet {
+            inferChangesInRequest(oldValue)
+        }
+    }
 
     var confirmationChangedCallback: (ExchangeConfirmationOption -> Void)?
+    var messageSendingFailed = false {
+        didSet {
+            markLastSectionAsFailed(messageSendingFailed)
+        }
+    }
+    private var lastSectionIndex: Int {
+        return self.request.messages.count - 1
+    }
 
-//    private var state = ChatState.Requested
     private var confirmationBlockMode: ExchangeConfirmationOption?
+
+    private let priceFormatter: NSNumberFormatter = {
+        let priceFormatter = NSNumberFormatter()
+        priceFormatter.numberStyle = .CurrencyStyle
+        return priceFormatter
+    }()
 
     private let layout = UICollectionViewFlowLayout()
 
@@ -122,12 +139,10 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
 
-        // Scroll to the very bottom
-        let sectionIndex = numberOfSectionsInCollectionView(collectionView!) - 1
-        let lastIndexPath = NSIndexPath(forRow: collectionView(collectionView!, numberOfItemsInSection: sectionIndex) - 1, inSection: sectionIndex)
-
-        collectionView!.scrollToItemAtIndexPath(lastIndexPath, atScrollPosition: .Bottom, animated: true)
+        scrollToBottom()
     }
+
+    // MARK: Collection view configuration
 
     override func numberOfSectionsInCollectionView(collectionView: UICollectionView) -> Int {
         return request.messages.count
@@ -230,6 +245,8 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
         return UICollectionReusableView()
     }
 
+    // MARK: Cell configuration 
+
     private func configureBubbleCell(cell: ChatCollectionViewCell, indexPath: NSIndexPath, message: ChatMessage) {
 
         cell.maxBubbleWidth = maxBubbleWidth()
@@ -250,6 +267,8 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
         } else if case .Image(let image) = message.files[indexPath.row] {
             cell.configure(image: image, position: position)
         }
+
+        cell.failed = (messageSendingFailed && indexPath.section == lastSectionIndex)
     }
 
     /**
@@ -272,7 +291,7 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
                     self.collectionView?.performBatchUpdates({
                         self.confirmationBlockMode = selection
                         self.confirmationChangedCallback?(selection)
-                    }, completion: { finished in })
+                    }, completion: nil)
 
                     let messageIndex = self.request.messages.indexOf({ $0.id == message.id })!
                     let itemIndex = self.collectionView(self.collectionView!, numberOfItemsInSection: messageIndex) - 1
@@ -295,10 +314,7 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
         let cellMode: ChatConfirmationCellMode
 
         if changeRequest.status == .WaitingForPayment {
-            let priceFormatter = NSNumberFormatter()
-            priceFormatter.numberStyle = .CurrencyStyle
-            // FIXME: Get price from a ChangeRequest
-            let value = NSNumber(double: 342.05)
+            let value = NSNumber(double: changeRequest.totalAmountCeiled)
             let priceText = priceFormatter.stringFromNumber(value)!
             cellMode = ChatConfirmationCellMode.WaitingForPayment(changeRequestId: changeRequest.changeId, priceText: priceText, payButtonCallback: { changeRequestId in
                 // TODO: Pay Button Pressed
@@ -316,11 +332,31 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
         cell.configureView(chatType: request.type, mode: cellMode, message: changeRequest.localizedStatus(), passengerName: passengerName)
     }
 
-    func maxBubbleWidth() -> CGFloat {
+    private func maxBubbleWidth() -> CGFloat {
         return bubbleCellWidth() * 0.7
     }
-    func bubbleCellWidth() -> CGFloat {
+    private func bubbleCellWidth() -> CGFloat {
         return ceil((self.view.bounds.size.width - layout.sectionInset.left - layout.sectionInset.right) * 0.95)
+    }
+    private func scrollToBottom() {
+        // Scroll to the very bottom
+        let lastIndexPath = NSIndexPath(forRow: collectionView(collectionView!, numberOfItemsInSection: lastSectionIndex) - 1, inSection: lastSectionIndex)
+
+        collectionView!.scrollToItemAtIndexPath(lastIndexPath, atScrollPosition: .Bottom, animated: true)
+    }
+
+    private func inferChangesInRequest(previousRequest: ExchangeAndRefundRequest) {
+        confirmationBlockMode = nil
+        if previousRequest.messages.count < request.messages.count {
+            self.collectionView?.performBatchUpdates({
+                collectionView?.insertSections(NSIndexSet(indexesInRange: NSRange(previousRequest.messages.count..<request.messages.count)))
+            }, completion: nil)
+            scrollToBottom()
+        }
+    }
+
+    private func markLastSectionAsFailed(failed: Bool) {
+        collectionView?.reloadSections(NSIndexSet(index: lastSectionIndex))
     }
 
 }

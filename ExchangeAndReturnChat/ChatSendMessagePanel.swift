@@ -24,6 +24,10 @@ enum ChatSendMessagePanelState {
     case Cancelled
 }
 
+protocol ChatMessagePanelDelegate: class {
+    func sendMessage(message: String)
+}
+
 class ChatSendMessagePanel: UIView {
 
     var state = ChatSendMessagePanelState.Normal {
@@ -44,11 +48,14 @@ class ChatSendMessagePanel: UIView {
 
         return label
     }()
-    private let composeView = ComposeView()
+    private(set) var progressBar: UIProgressView?
+    private let composeView: ComposeView
     lazy private var confirmView: ConfirmButtonView = ConfirmButtonView()
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    init(delegate: ChatMessagePanelDelegate) {
+        self.composeView = ComposeView(delegate: delegate)
+
+        super.init(frame: CGRectZero)
 
         initializeView()
     }
@@ -108,31 +115,60 @@ class ChatSendMessagePanel: UIView {
     private func updateWithNewState() {
         statusLabel.hidden = false
         composeView.hidden = true
+        progressBar?.hidden = true
+        progressBar = nil
+
+        let message: String?
 
         switch state {
         case .Normal:
             statusLabel.hidden = true
             composeView.hidden = false
+            message = nil
         case .Sending:
-            statusLabel.text = NSLocalizedString("LocExchangeSendingMsg", comment: "")
+            message = NSLocalizedString("LocExchangeSendingMsg", comment: "")
+            addProgressBar()
         case .Sent:
-            statusLabel.text = NSLocalizedString("LocExchangeMsgSent", comment: "")
+            message = NSLocalizedString("LocExchangeMsgSent", comment: "")
         case .Failed:
-            statusLabel.text = NSLocalizedString("LocExchangeTryLater", comment: "")
+            message = NSLocalizedString("LocExchangeTryLater", comment: "")
         case .Disabled:
             statusLabel.hidden = true
             composeView.hidden = false
+            message = nil
         case .AwaitingReview:
-            statusLabel.text = NSLocalizedString("LocExchangeRequested", comment: "Ожидает рассмотрения оператором")
+            message = NSLocalizedString("LocExchangeRequested", comment: "Ожидает рассмотрения оператором")
         case .InReview:
-            statusLabel.text = NSLocalizedString("LocExchangeInProcess", comment: "Рассматривается оператором")
+            message = NSLocalizedString("LocExchangeInProcess", comment: "Рассматривается оператором")
         case .Confirmed:
-            statusLabel.text = NSLocalizedString("LocExchangeConfirmed", comment: "Условия подтверждены")
+            message = NSLocalizedString("LocExchangeConfirmed", comment: "Условия подтверждены")
         case .Finished:
-            statusLabel.text = NSLocalizedString("LocRequestFinished", comment: "Запрос выполнен")
+            message = NSLocalizedString("LocRequestFinished", comment: "Запрос выполнен")
         case .Cancelled:
-            statusLabel.text = NSLocalizedString("LocRequestCancelled", comment: "Запрос отменен")
+            message = NSLocalizedString("LocRequestCancelled", comment: "Запрос отменен")
         }
+
+        if let message = message {
+            let animation = CATransition()
+            animation.duration = 0.3
+            animation.type = kCATransitionFade
+            animation.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+
+            statusLabel.layer.addAnimation(animation, forKey: "changeTextTransition")
+            statusLabel.text = message
+        }
+    }
+
+    private func addProgressBar() {
+        let progressView = UIProgressView()
+        progressView.translatesAutoresizingMaskIntoConstraints = false
+        progressView.progress = 0.0
+        addSubview(progressView)
+        progressBar = progressView
+
+        addConstraint(NSLayoutConstraint(item: progressView, attribute: .Width, relatedBy: .Equal, toItem: statusLabel, attribute: .Width, multiplier: 1.0, constant: 0.0))
+        addConstraint(NSLayoutConstraint(item: progressView, attribute: .CenterX, relatedBy: .Equal, toItem: self, attribute: .CenterX, multiplier: 1.0, constant: 0.0))
+        addConstraint(NSLayoutConstraint(item: progressView, attribute: .Top, relatedBy: .Equal, toItem: statusLabel, attribute: .Bottom, multiplier: 1.0, constant: 2.0))
     }
 
 }
@@ -180,9 +216,11 @@ private class ComposeView: UIView, UITextViewDelegate {
             enableSendButtonIfNeeded()
         }
     }
+    private let delegate: ChatMessagePanelDelegate
     private var textViewHeightConstraint: NSLayoutConstraint!
 
-    init() {
+    init(delegate: ChatMessagePanelDelegate) {
+        self.delegate = delegate
         super.init(frame: CGRectZero)
 
         sendButton.addTarget(self, action: "sendButtonPressed", forControlEvents: .TouchUpInside)
@@ -224,7 +262,10 @@ private class ComposeView: UIView, UITextViewDelegate {
     }
 
     @objc private func sendButtonPressed() {
-        NSLog("Send button pressed")
+        let message = textView.text.stringByTrimmingCharactersInSet(.whitespaceAndNewlineCharacterSet())
+        textView.resignFirstResponder()
+        textView.text = nil
+        delegate.sendMessage(message)
     }
 
     private func enableSendButtonIfNeeded() {

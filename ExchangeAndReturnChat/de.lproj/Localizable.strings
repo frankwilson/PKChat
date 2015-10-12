@@ -15,6 +15,9 @@
 "LocExchangeRequested"      = "Die Anfrage ist zu bearbeiten";
 "LocExchangeInProcess"      = "Die Anfrage ist in Bearbeitung";
 "LocExchangeConfirmed"      = "Die Bedingungen sind bestätigt";
+"LocExchangeSendingMsg"     = "Nachricht wird gesendet";
+"LocExchangeMsgSent"        = "Nachricht ist gesendet";
+"LocExchangeTryLater"       = "Bitte versuchen Sie es noch einmal";
 "LocExchangeCompleted"      = "Der Austausch ist vollendet. Austauschsdatum: %@.";
 "LocExchangeWillBeComplete" = "Der Austausch ist bezahlt worden und wird bald abgewickelt.";
 "LocExchangeWaitingPayment" = "Man braucht den Austausch bevor %@ zu bezahlen.";
