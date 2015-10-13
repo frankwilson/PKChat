@@ -107,8 +107,15 @@ class ViewController: UIViewController {
             let request = try ExchangeAndRefundRequest(data: data, messages: messages, changeRequests: changeRequests)
 
             let controller = ExchangeAndRefundViewController(request: request)
+            controller.cancelRequestButton.addTarget(self, action: "cancelRequestButtonPressed:", forControlEvents: .TouchUpInside)
+            controller.refreshButton.addTarget(self, action: "refreshButtonPressed:", forControlEvents: .TouchUpInside)
 
             let navController = UINavigationController(rootViewController: controller)
+
+//            if isIpad {
+                let closeButton = UIBarButtonItem(title: NSLocalizedString("LocClose", comment:""), style: .Bordered, target: self, action: "closeButtonPressed:")
+                controller.navigationItem.leftBarButtonItem = closeButton
+//            }
 
             self.presentViewController(navController, animated: true, completion: nil)
         } catch let error where error is ExchangeAndRefundRequest.ParseError {
@@ -116,6 +123,16 @@ class ViewController: UIViewController {
         } catch {
             UIAlertView (title: "Error!", message: "Unable to parse Exchange & Refund request!", delegate: nil, cancelButtonTitle: nil, otherButtonTitles: "OK").show()
         }
+    }
+
+    // MARK: Buttons handlers
+    @objc private func cancelRequestButtonPressed(button: UIButton) {
+
+    }
+    @objc private func refreshButtonPressed(button: UIButton) {
+        
+    }
+    @objc private func closeButtonPressed(button: UIBarButtonItem) {
 
     }
 

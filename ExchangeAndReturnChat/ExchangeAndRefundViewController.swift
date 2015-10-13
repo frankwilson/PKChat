@@ -26,6 +26,25 @@ class ExchangeAndRefundViewController: UIViewController, ChatMessagePanelDelegat
             bottomPanel.enableSendButton = attachments.count > 0
         }
     }
+    let cancelRequestButton: UIButton = {
+        let cancelButton = UIButton(type: .Custom)
+
+        cancelButton.setBackgroundImage(UIImage(named: "Cancel Chat Icon"), forState: .Normal)
+        cancelButton.frame = CGRect(x: 0, y: 4, width: 22, height: 22)
+        cancelButton.contentMode = .Center
+        cancelButton.tintColor = UIColor.redColor()
+
+        return cancelButton
+    }()
+    let refreshButton: UIButton = {
+        let refreshButton = UIButton(type: .Custom)
+
+        refreshButton.setBackgroundImage(UIImage(named: "Refresh Icon"), forState: .Normal)
+        refreshButton.frame = CGRect(x: 38, y: 4, width: 22, height: 22)
+        refreshButton.contentMode = .Center
+
+        return refreshButton
+    }()
 
     init(request: ExchangeAndRefundRequest) {
         self.request = request
@@ -44,6 +63,7 @@ class ExchangeAndRefundViewController: UIViewController, ChatMessagePanelDelegat
         configureChat()
         configureTitleView()
         configureBottomPanel()
+        configureNavigationBar()
         regsterKeyboardNotifications()
     }
 
@@ -52,6 +72,15 @@ class ExchangeAndRefundViewController: UIViewController, ChatMessagePanelDelegat
         chatController.confirmationChangedCallback = { selection in
             self.bottomPanel.presentConfirmationButton(selection == .Confirmed, animated: true)
         }
+    }
+
+    private func configureNavigationBar() {
+
+        let rightButtonsView = UIView(frame: CGRect(x: 0, y: 0, width: 60, height: 30))
+        rightButtonsView.addSubview(cancelRequestButton)
+        rightButtonsView.addSubview(refreshButton)
+
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: rightButtonsView)
     }
 
     private func configureTitleView() {

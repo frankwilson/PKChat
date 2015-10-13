@@ -8,6 +8,9 @@
 
 import Foundation
 
+let isIpad = UIDevice.currentDevice().userInterfaceIdiom == .Pad
+let systemVersion = Float(UIDevice.currentDevice().systemVersion)!
+
 @inline(__always) func stringOrNil(object: AnyObject?) -> String? {
     if let stringValue = object as? String {
         return stringValue

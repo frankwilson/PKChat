@@ -6,6 +6,8 @@
   Copyright © 2015 Anywayanyday. All rights reserved.
 */
 
+"LocClose" = "Schließen";
+
 "LocExchangeTickets" = "Ticketsaustausch";
 "LocReturnTickets" = "Ticketserstattung";
 "LocOrderN" = "Bestellung № %@";

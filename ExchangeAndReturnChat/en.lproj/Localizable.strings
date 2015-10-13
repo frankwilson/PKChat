@@ -6,6 +6,8 @@
   Copyright © 2015 Anywayanyday. All rights reserved.
 */
 
+"LocClose" = "Close";
+
 "LocExchangeTickets" = "Tickets exchange";
 "LocReturnTickets" = "Tickets refund";
 "LocOrderN" = "Order № %@";
