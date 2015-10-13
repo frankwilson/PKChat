@@ -185,7 +185,7 @@ private class ComposeView: UIView, UITextViewDelegate {
         textView.autocorrectionType = .No
         textView.spellCheckingType = .No
         textView.keyboardAppearance = .Dark
-        //textView.contentInset = UIEdgeInsets(top: -4.0, left: 0.0, bottom: -4.0, right: 0.0)
+        textView.textContainerInset = UIEdgeInsets(top: 4.0, left: 0.0, bottom: 4.0, right: 0.0)
         //textView.placeholder = NSLocalizedString("LocExchangeMessage", comment: "Placeholder for a exchange & refund chat text field")
 
         return textView
