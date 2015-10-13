@@ -125,6 +125,7 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
             c.backgroundColor = UIColor.iphoneDarkBackgroundColor()
 
             c.contentInset = UIEdgeInsets(top: 10, left: 0, bottom: 10, right: 0)
+            c.keyboardDismissMode = .OnDrag
 
             c.registerClass(ChatCollectionViewCell.self, forCellWithReuseIdentifier: chatCellIdentifier)
             c.registerClass(ChatConfirmationBlockCell.self, forCellWithReuseIdentifier: confirmationCellIdentifier)
@@ -338,7 +339,7 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
     private func bubbleCellWidth() -> CGFloat {
         return ceil((self.view.bounds.size.width - layout.sectionInset.left - layout.sectionInset.right) * 0.95)
     }
-    private func scrollToBottom() {
+    func scrollToBottom() {
         // Scroll to the very bottom
         let lastIndexPath = NSIndexPath(forRow: collectionView(collectionView!, numberOfItemsInSection: lastSectionIndex) - 1, inSection: lastSectionIndex)
 
@@ -349,9 +350,13 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
         confirmationBlockMode = nil
         if previousRequest.messages.count < request.messages.count {
             self.collectionView?.performBatchUpdates({
-                collectionView?.insertSections(NSIndexSet(indexesInRange: NSRange(previousRequest.messages.count..<request.messages.count)))
-            }, completion: nil)
-            scrollToBottom()
+                if let lastMessage = previousRequest.messages.last where lastMessage.requestStatus == .AwaitingConfirmation {
+                    self.collectionView?.reloadItemsAtIndexPaths([NSIndexPath(forRow: 0, inSection: previousRequest.messages.count - 1)])
+                }
+                self.collectionView?.insertSections(NSIndexSet(indexesInRange: NSRange(previousRequest.messages.count..<self.request.messages.count)))
+            }, completion: {finished in
+                self.scrollToBottom()
+            })
         }
     }
 

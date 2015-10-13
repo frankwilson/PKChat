@@ -138,26 +138,25 @@ class ExchangeAndRefundViewController: UIViewController, ChatMessagePanelDelegat
         let keyboardRect = (userInfo[UIKeyboardFrameEndUserInfoKey] as! NSValue).CGRectValue()
         let keyboardHeight = keyboardRect.size.height;
         let animationDuration = (userInfo[UIKeyboardAnimationDurationUserInfoKey] as! NSNumber).doubleValue
+        let curve = (userInfo[UIKeyboardAnimationCurveUserInfoKey] as! NSNumber).unsignedLongValue
 
-        self.bottomPanelBottomConstraint.constant = keyboardHeight
-        self.view.layoutIfNeeded()
-        UIView.animateWithDuration(animationDuration, delay: 0, options: [.CurveLinear, .OverrideInheritedDuration], animations: {
+        UIView.animateWithDuration(animationDuration, delay: 0, options: UIViewAnimationOptions(rawValue: curve), animations: {
             self.bottomPanelBottomConstraint.constant = keyboardHeight
             self.view.layoutIfNeeded()
-        }, completion: nil)
+        }, completion: { finished in
+            self.chatController.scrollToBottom()
+        })
     }
     @objc private func keyboardWillDisappear(n: NSNotification) {
         guard let userInfo = n.userInfo else {
             return
         }
         let animationDuration = (userInfo[UIKeyboardAnimationDurationUserInfoKey] as! NSNumber).doubleValue
+        let curve = (userInfo[UIKeyboardAnimationCurveUserInfoKey] as! NSNumber).unsignedLongValue
 
-        self.bottomPanelBottomConstraint.constant = 0
-        self.view.setNeedsLayout()
-        UIView.animateWithDuration(animationDuration, delay: 0, options: [.CurveLinear, .OverrideInheritedDuration], animations: {
+        UIView.animateWithDuration(animationDuration, delay: 0, options: UIViewAnimationOptions(rawValue: curve), animations: {
             self.bottomPanelBottomConstraint.constant = 0
-            self.view.setNeedsLayout()
+            self.view.layoutIfNeeded()
         }, completion: nil)
-
     }
 }

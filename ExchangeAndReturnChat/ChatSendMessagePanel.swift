@@ -70,6 +70,7 @@ class ChatSendMessagePanel: UIView {
             addConstraint(topConstraint)
             addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("H:|[confirmView]|", options: [], metrics: nil, views: ["confirmView": confirmView]))
             self.superview!.layoutIfNeeded()
+            self.composeView.textView.resignFirstResponder()
             if animated {
                 UIView.animateWithDuration(0.3) {
                     topConstraint.constant = 0.0
