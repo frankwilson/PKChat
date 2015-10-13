@@ -44,7 +44,8 @@ extension UIButton {
         let attrTitleNormal: NSAttributedString?
         if let title = title {
             attrTitleNormal = NSAttributedString(string: title, attributes: [
-                NSFontAttributeName: UIFont.iphoneDefaultFont(16.0)
+                NSFontAttributeName: UIFont.iphoneRegularFont(16.0),
+                NSForegroundColorAttributeName: UIColor.whiteColor()
             ])
         } else {
             attrTitleNormal = nil
