@@ -168,13 +168,13 @@ class ChatCollectionViewCell: UICollectionViewCell {
 
         let imageName = position == .Left ? "ChatBubble – Operator" : "ChatBubble – Client"
 
-        let bubbleInsets = UIEdgeInsets(top: 14.0, left: position == .Left ? 19.0 : 15.0, bottom: 15.0, right: position == .Right ? 19.0 : 15.0)
-        let image = UIImage(named: imageName)!.resizableImageWithCapInsets(bubbleInsets)
+        let image = UIImage(named: imageName)!
+        image.capInsets
 
         let maskLayer = CALayer()
         maskLayer.contents = image.CGImage
         maskLayer.contentsScale = UIScreen.mainScreen().scale
-        maskLayer.contentsCenter = CGRect(x: bubbleInsets.left / image.size.width, y: bubbleInsets.top / image.size.height, width: 1.0 / image.size.width, height: 1.0 / image.size.height)
+        maskLayer.contentsCenter = CGRect(x: image.capInsets.left / image.size.width, y: image.capInsets.top / image.size.height, width: 1.0 / image.size.width, height: 1.0 / image.size.height)
 
         bubbleView.layer.mask = maskLayer
         bubbleView.layer.masksToBounds = true
@@ -192,10 +192,10 @@ class ChatCollectionViewCell: UICollectionViewCell {
                 imageView = image
             } else  {
                 imageView = UIImageView(image: UIImage(named: "Chat Document Icon"))
-                imageView.tintColor = textLabel.textColor
                 imageView.translatesAutoresizingMaskIntoConstraints = false
                 documentImageView = imageView
             }
+            imageView.tintColor = textLabel.textColor
             let leftOffset = (position == .Left ? 15.0 : 10.0)
             bubbleView.addSubview(imageView)
             bubbleView.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("H:|-left-[image]", options: [], metrics: ["left": leftOffset], views: ["image": imageView]))
