@@ -8,6 +8,8 @@
 
 import UIKit
 
+private let textViewVerticalMargin: CGFloat = 8.0
+
 private let minTextViewHeight: CGFloat = 28.0
 private let maxTextViewHeight: CGFloat = 152.0 // 7 lines
 
@@ -251,7 +253,7 @@ private class ComposeView: UIView, UITextViewDelegate {
         let views = ["attachButton": attachButton, "textView": textView, "sendButton": sendButton]
 
         addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("|-5-[attachButton(44)]-5-[textView]-8-[sendButton]-8-|", options: [], metrics: nil, views: views))
-        addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|-8-[textView]-8-|", options: [], metrics: nil, views: views))
+        addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|-margin-[textView]-margin-|", options: [], metrics: ["margin": textViewVerticalMargin], views: views))
         addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|->=0-[attachButton(44)]-<=5-|", options: [], metrics: nil, views: views))
         addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|->=0-[sendButton(44)]-<=5-|", options: [], metrics: nil, views: views))
 

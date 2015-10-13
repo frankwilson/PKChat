@@ -97,7 +97,7 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
     private var lastSectionIndex: Int {
         return self.request.messages.count - 1
     }
-
+    private var viewBoundsObserverAdded = false
     private var confirmationBlockMode: ExchangeConfirmationOption?
 
     private let priceFormatter: NSNumberFormatter = {
@@ -141,6 +141,24 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
         super.viewDidAppear(animated)
 
         scrollToBottom()
+    }
+
+    func keyboardDidAppear() {
+        if !viewBoundsObserverAdded {
+            view.addObserver(self, forKeyPath: "bounds", options: [], context: nil)
+            viewBoundsObserverAdded = true
+        }
+    }
+    func keyboardWillDisappear() {
+        if viewBoundsObserverAdded {
+            view.removeObserver(self, forKeyPath: "bounds")
+            viewBoundsObserverAdded = false
+        }
+    }
+    override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
+        if let object = object where object === self.view, let keyPath = keyPath where keyPath == "bounds" {
+            scrollToBottom()
+        }
     }
 
     // MARK: Collection view configuration

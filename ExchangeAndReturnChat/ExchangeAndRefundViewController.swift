@@ -128,6 +128,7 @@ class ExchangeAndRefundViewController: UIViewController, ChatMessagePanelDelegat
     // MARK: Keaboard notification listeners
     private func regsterKeyboardNotifications() {
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWillAppear:", name: UIKeyboardWillShowNotification, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardDidAppear:", name: UIKeyboardDidShowNotification, object: nil)
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWillDisappear:", name: UIKeyboardWillHideNotification, object: nil)
     }
 
@@ -147,7 +148,11 @@ class ExchangeAndRefundViewController: UIViewController, ChatMessagePanelDelegat
             self.chatController.scrollToBottom()
         })
     }
+    @objc private func keyboardDidAppear(n: NSNotification) {
+        chatController.keyboardDidAppear()
+    }
     @objc private func keyboardWillDisappear(n: NSNotification) {
+        chatController.keyboardWillDisappear()
         guard let userInfo = n.userInfo else {
             return
         }
