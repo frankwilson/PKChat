@@ -129,13 +129,13 @@ class ViewController: UIViewController {
 
     // MARK: Buttons handlers
     @objc private func cancelRequestButtonPressed(button: UIButton) {
-
+        print("Cancel button pressed")
     }
     @objc private func refreshButtonPressed(button: UIButton) {
-        
+        print("Refresh button pressed")
     }
     @objc private func closeButtonPressed(button: UIBarButtonItem) {
-
+        print("Close button pressed")
     }
 
 }

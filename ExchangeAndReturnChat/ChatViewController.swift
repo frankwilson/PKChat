@@ -10,7 +10,7 @@ import UIKit
 
 private let chatCellIdentifier = "ExchangeAndReturnChatBubble"
 private let confirmationCellIdentifier = "ExchangeAndReturnConfirmationBlock"
-private let chatHeaderIdentifier = "ExchangeAndReturnChatDateAndTime"
+private let chatDateAndTimeCellIdentifier = "ExchangeAndReturnChatDateAndTime"
 private let chatFooterIdentifier = "ExchangeAndReturnChatFinishStatus"
 private let messageNotSentFooterIdentifier = "ExchangeAndReturnChatMessageNotSent"
 
@@ -133,13 +133,12 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
 
             c.registerClass(ChatCollectionViewCell.self, forCellWithReuseIdentifier: chatCellIdentifier)
             c.registerClass(ChatConfirmationBlockCell.self, forCellWithReuseIdentifier: confirmationCellIdentifier)
-            c.registerClass(ChatDateAndTimeReusableView.self, forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: chatHeaderIdentifier)
+            c.registerClass(ChatDateAndTimeCell.self, forCellWithReuseIdentifier: chatDateAndTimeCellIdentifier)
             c.registerClass(ChatFinishedReusableView.self, forSupplementaryViewOfKind: UICollectionElementKindSectionFooter, withReuseIdentifier: chatFooterIdentifier)
             c.registerClass(SendingErrorReusableView.self, forSupplementaryViewOfKind: UICollectionElementKindSectionFooter, withReuseIdentifier: messageNotSentFooterIdentifier)
         }
 
         layout.sectionInset = UIEdgeInsets(top: 10, left: 0, bottom: 10, right: 0)
-        layout.headerReferenceSize = CGSize(width: 100, height: 24)
     }
 
     override func viewDidAppear(animated: Bool) {
@@ -182,8 +181,13 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
             count++
         }
         if message.requestStatus == .Confirmed {
+            // Change requests blocks
             count += self.request.changeRequests.count
+        } else if !(section == lastSectionIndex && messageSendingFailed) && message.requestStatus != .AwaitingConfirmation {
+            // Sent date & time
+            count++
         }
+
         return count
     }
 
@@ -198,10 +202,12 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
             } else {
                 cellSize.height = ChatCollectionViewCell.size(text: text, maxWidth: maxBubbleWidth(), documentStyle: false).height
             }
-        } else if indexPath.row > message.files.count && request.changeRequests.count > 0 {
+        } else if indexPath.row > message.files.count && message.requestStatus == .Confirmed && request.changeRequests.count > 0 {
             let requestIndex = indexPath.row - (message.text != nil ? 1 : 0) - message.files.count
             let currentChangeRequest = request.changeRequests[requestIndex]
             cellSize = ChatConfirmationBlockCell.size(mode: .PaymentComplete, text: currentChangeRequest.localizedStatus(), passengerName: currentChangeRequest.passengerName)
+        } else if indexForLastRowInSection(indexPath.section) == indexPath.row {
+            cellSize.height = 14.0
         } else if case .OtherFile(let fileName) = message.files[indexPath.row] {
             cellSize.height = ChatCollectionViewCell.size(text: fileName, maxWidth: maxBubbleWidth(), documentStyle: true).height
         } else if case .Image(let image) = message.files[indexPath.row] {
@@ -222,10 +228,15 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
             let nextMessage: ChatMessage? = request.messages.count > indexPath.section + 1 ? request.messages[indexPath.section + 1] : nil
             configureConfirmationCell(aCell, message: message, nextMessage: nextMessage)
             cell = aCell
-        } else if indexPath.row > message.files.count && request.changeRequests.count > 0 {
+        } else if indexPath.row > message.files.count && message.requestStatus == .Confirmed && request.changeRequests.count > 0 {
             let aCell = collectionView.dequeueReusableCellWithReuseIdentifier(confirmationCellIdentifier, forIndexPath: indexPath) as! ChatConfirmationBlockCell
             let requestIndex = indexPath.row - (message.text != nil ? 1 : 0) - message.files.count
             configurePaymentCell(aCell, changeRequest: request.changeRequests[requestIndex])
+            cell = aCell
+        } else if indexForLastRowInSection(indexPath.section) == indexPath.row {
+            let aCell = collectionView.dequeueReusableCellWithReuseIdentifier(chatDateAndTimeCellIdentifier, forIndexPath: indexPath) as! ChatDateAndTimeCell
+            aCell.backgroundColor = self.collectionView?.backgroundColor
+            aCell.configure(date: message.date, alignment: message.authorType == .Operator ? .Left : .Right)
             cell = aCell
         } else {
             let aCell = collectionView.dequeueReusableCellWithReuseIdentifier(chatCellIdentifier, forIndexPath: indexPath) as! ChatCollectionViewCell
@@ -242,22 +253,14 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
         if message.requestStatus == .Cancelled || message.requestStatus == .Finished {
             return CGSize(width: 200, height: 24)
         } else if messageSendingFailed && section == lastSectionIndex {
-            return CGSize(width: 200, height: 14)
+            return CGSize(width: 200, height: 12)
         } else {
             return CGSizeZero
         }
     }
 
     override func collectionView(collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, atIndexPath indexPath: NSIndexPath) -> UICollectionReusableView {
-        if kind == UICollectionElementKindSectionHeader {
-            let message = request.messages[indexPath.section]
-
-            let view = collectionView.dequeueReusableSupplementaryViewOfKind(kind, withReuseIdentifier: chatHeaderIdentifier, forIndexPath: indexPath) as! ChatDateAndTimeReusableView
-            view.backgroundColor = self.collectionView?.backgroundColor
-            view.configure(date: message.date)
-
-            return view
-        } else if kind == UICollectionElementKindSectionFooter {
+        if kind == UICollectionElementKindSectionFooter {
             let message = request.messages[indexPath.section]
 
             if message.requestStatus == .Cancelled || message.requestStatus == .Finished {
@@ -299,7 +302,7 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
             cell.configure(image: image, position: position)
         }
 
-        cell.failed = (messageSendingFailed && indexPath.section == lastSectionIndex && indexPath.row == collectionView(collectionView!, numberOfItemsInSection: lastSectionIndex) - 1)
+        cell.failed = (messageSendingFailed && indexPath.section == lastSectionIndex && indexPath.row == indexForLastRowInSection(indexPath.section))
         if cell.failed {
             cell.retrySendingCallback = retrySendingCallback
         }
@@ -372,6 +375,9 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
     private func bubbleCellWidth() -> CGFloat {
         return ceil((self.view.bounds.size.width - layout.sectionInset.left - layout.sectionInset.right) * 0.95)
     }
+    private func indexForLastRowInSection(section: Int) -> Int {
+        return collectionView(collectionView!, numberOfItemsInSection: section) - 1
+    }
     func scrollToBottom() {
         // Scroll to the very bottom
         let lastIndexPath = NSIndexPath(forRow: collectionView(collectionView!, numberOfItemsInSection: lastSectionIndex) - 1, inSection: lastSectionIndex)
@@ -399,11 +405,13 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
     }
 }
 
-private class ChatDateAndTimeReusableView: UICollectionReusableView {
+private class ChatDateAndTimeCell: UICollectionViewCell {
 
     private static let dateFormatter: NSDateFormatter = {
         let formatter = NSDateFormatter()
-        formatter.dateFormat = "dd.MM.yyyy, HH:mm"
+        formatter.locale = NSLocale.currentLocale()
+        formatter.dateStyle = .LongStyle
+        formatter.timeStyle = .ShortStyle
         return formatter
     }()
 
@@ -415,7 +423,7 @@ private class ChatDateAndTimeReusableView: UICollectionReusableView {
         label.setContentHuggingPriority(UILayoutPriorityDefaultLow, forAxis: .Horizontal)
         label.setContentHuggingPriority(UILayoutPriorityDefaultLow, forAxis: .Vertical)
         label.textColor = UIColor.iphoneMainGrayColor()
-        label.font = UIFont.iphoneDefaultFont(16.0)
+        label.font = UIFont.iphoneMediumFont(11.0)
 
         return label
     }()
@@ -430,8 +438,9 @@ private class ChatDateAndTimeReusableView: UICollectionReusableView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(date date: NSDate) {
-        label.text = "\(ChatDateAndTimeReusableView.dateFormatter.stringFromDate(date))"
+    func configure(date date: NSDate, alignment: NSTextAlignment) {
+        label.textAlignment = alignment
+        label.text = "\(ChatDateAndTimeCell.dateFormatter.stringFromDate(date))"
     }
 
     private func initializeView() {
