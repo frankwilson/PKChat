@@ -29,19 +29,19 @@ class ExchangeAndRefundViewController: UIViewController, ChatMessagePanelDelegat
     let cancelRequestButton: UIButton = {
         let cancelButton = UIButton(type: .Custom)
 
-        cancelButton.setBackgroundImage(UIImage(named: "Cancel Chat Icon"), forState: .Normal)
-        cancelButton.frame = CGRect(x: 0, y: 4, width: 22, height: 22)
-        cancelButton.contentMode = .Center
-        cancelButton.tintColor = UIColor.redColor()
+        cancelButton.setImage(UIImage(named: "Cancel Chat Icon"), forState: .Normal)
+        cancelButton.frame = CGRect(x: 0, y: 0, width: 32, height: 38)
+        cancelButton.contentHorizontalAlignment = .Left
+        cancelButton.tintColor = UIColor.iphoneDestructiveRedColor()
 
         return cancelButton
     }()
     let refreshButton: UIButton = {
         let refreshButton = UIButton(type: .Custom)
 
-        refreshButton.setBackgroundImage(UIImage(named: "Refresh Icon"), forState: .Normal)
-        refreshButton.frame = CGRect(x: 38, y: 4, width: 22, height: 22)
-        refreshButton.contentMode = .Center
+        refreshButton.setImage(UIImage(named: "Refresh Icon"), forState: .Normal)
+        refreshButton.frame = CGRect(x: 32, y: 0, width: 32, height: 38)
+        refreshButton.contentHorizontalAlignment = .Right
 
         return refreshButton
     }()
@@ -79,7 +79,7 @@ class ExchangeAndRefundViewController: UIViewController, ChatMessagePanelDelegat
 
     private func configureNavigationBar() {
 
-        let rightButtonsView = UIView(frame: CGRect(x: 0, y: 0, width: 60, height: 30))
+        let rightButtonsView = UIView(frame: CGRect(x: 0, y: 0, width: 64, height: 38))
         rightButtonsView.addSubview(cancelRequestButton)
         rightButtonsView.addSubview(refreshButton)
 
