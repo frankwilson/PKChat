@@ -10,6 +10,8 @@ import UIKit
 
 class ViewController: UIViewController {
 
+    private var sideViewController: UIViewController?
+
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
@@ -112,14 +114,11 @@ class ViewController: UIViewController {
             controller.cancelRequestButton.addTarget(self, action: "cancelRequestButtonPressed:", forControlEvents: .TouchUpInside)
             controller.refreshButton.addTarget(self, action: "refreshButtonPressed:", forControlEvents: .TouchUpInside)
 
-            let navController = UINavigationController(rootViewController: controller)
-
             if isIpad {
-                let closeButton = UIBarButtonItem(title: NSLocalizedString("LocClose", comment:""), style: .Bordered, target: self, action: "closeButtonPressed:")
-                controller.navigationItem.leftBarButtonItem = closeButton
-                self.presentViewController(navController, animated: true, completion: nil)
+                presentSideView(controller)
+            } else {
+                self.navigationController?.pushViewController(controller, animated: true)
             }
-            self.navigationController?.pushViewController(controller, animated: true)
         } catch let error where error is ExchangeAndRefundRequest.ParseError {
             UIAlertView (title: "Error!", message: "Unable to parse Exchange & Refund request: \(error)", delegate: nil, cancelButtonTitle: nil, otherButtonTitles: "OK").show()
         } catch {
@@ -136,7 +135,63 @@ class ViewController: UIViewController {
     }
     @objc private func closeButtonPressed(button: UIBarButtonItem) {
         print("Close button pressed")
+
+        navigationItem.rightBarButtonItem = nil
+        sideViewController?.willMoveToParentViewController(nil)
+        sideViewController?.view.removeFromSuperview()
+        sideViewController?.removeFromParentViewController()
+        sideViewController = nil
     }
 
+    private func presentSideView(controller: UIViewController) {
+        addChildViewController(controller)
+        controller.view.frame = CGRect(origin: CGPoint(x: view.bounds.size.width, y: 64), size: CGSize(width: 320, height: view.bounds.size.height))
+        controller.view.translatesAutoresizingMaskIntoConstraints = false
+
+        view.addSubview(controller.view)
+        view.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|-64-[child]|", options: [], metrics: nil, views: ["child": controller.view]))
+        controller.view.constrainWidth(320)
+        let leadingConstraint = NSLayoutConstraint(item: controller.view, attribute: .Trailing, relatedBy: .Equal, toItem: view, attribute: .Trailing, multiplier: 1.0, constant: -320)
+        view.addConstraint(leadingConstraint)
+
+        controller.didMoveToParentViewController(self)
+        sideViewController = controller
+
+        UIView.animateWithDuration(0.3) {
+            leadingConstraint.constant = 0.0
+            self.view.layoutIfNeeded()
+        }
+
+        let closeButton = UIBarButtonItem(title: NSLocalizedString("LocClose", comment:""), style: .Bordered, target: self, action: "closeButtonPressed:")
+        navigationItem.rightBarButtonItem = closeButton
+    }
+
+}
+
+private class SideViewController: UIViewController {
+
+    init() {
+        super.init(nibName: nil, bundle: nil)
+    }
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    private override func viewDidLoad() {
+        view.backgroundColor = UIColor.magentaColor()
+    }
+
+    func configureWithChildViewController(controller: UIViewController) {
+
+        addChildViewController(controller)
+        controller.view.frame = CGRect(origin: CGPointZero, size: CGSize(width: 320, height: 568))
+        controller.view.translatesAutoresizingMaskIntoConstraints = false
+
+        view.addSubview(controller.view)
+        view.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|[child]|", options: [], metrics: nil, views: ["child": controller.view]))
+        view.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("H:|[child]|", options: [], metrics: nil, views: ["child": controller.view]))
+
+        controller.didMoveToParentViewController(self)
+    }
 }
 
