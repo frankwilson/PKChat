@@ -10,6 +10,9 @@ import UIKit
 
 private let textViewVerticalMargin: CGFloat = 8.0
 
+let attachmentsViewHeight: CGFloat = 80.0
+private let imageThumbnailSize: CGFloat = 62.0
+
 private let minTextViewHeight: CGFloat = 28.0
 private let maxTextViewHeight: CGFloat = 152.0 // 7 lines
 
@@ -28,6 +31,7 @@ enum ChatSendMessagePanelState {
 
 protocol ChatMessagePanelDelegate: class {
     func sendMessage(message: String)
+    func hideOrShowAttachmentsView()
 }
 
 class ChatSendMessagePanel: UIView {
@@ -113,6 +117,9 @@ class ChatSendMessagePanel: UIView {
         addConstraint(NSLayoutConstraint(item: statusLabel, attribute: .CenterY, relatedBy: .Equal, toItem: self, attribute: .CenterY, multiplier: 1.0, constant: 0.0))
 
         addHorizontalSeparatorLine(.Top)
+
+        layer.shadowOpacity = 0.55
+        layer.shadowOffset = CGSize(width: 0, height: 3)
     }
 
     private func updateWithNewState() {
@@ -224,6 +231,7 @@ private class ComposeView: UIView, UITextViewDelegate {
 
         return label
     }()
+
     private var enableSendButton = false {
         didSet {
             enableSendButtonIfNeeded()
@@ -277,7 +285,7 @@ private class ComposeView: UIView, UITextViewDelegate {
     }
 
     @objc private func attachButtonPressed() {
-        NSLog("Attach button pressed")
+        delegate.hideOrShowAttachmentsView()
     }
 
     @objc private func sendButtonPressed() {

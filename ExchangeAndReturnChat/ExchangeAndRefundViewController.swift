@@ -15,6 +15,7 @@ class ExchangeAndRefundViewController: UIViewController, ChatMessagePanelDelegat
         let panel = ChatSendMessagePanel(delegate: self)
         return panel
     }()
+    lazy private var attachmentsView: ChatAttachmentsView = ChatAttachmentsView()
 
     private var request: ExchangeAndRefundRequest
 
@@ -157,6 +158,38 @@ class ExchangeAndRefundViewController: UIViewController, ChatMessagePanelDelegat
         }
     }
 
+    func hideOrShowAttachmentsView() {
+        if let _ = attachmentsView.superview {
+            hideAttachmentsView {
+                self.attachmentsView.removeFromSuperview()
+            }
+        } else {
+            attachmentsView.frame = CGRect(x: 0, y: CGRectGetMaxY(view.frame), width: view.frame.size.width, height: attachmentsViewHeight)
+            view.insertSubview(attachmentsView, belowSubview: bottomPanel)
+            view.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("H:|[attachments]|", options: [], metrics: nil, views: ["attachments": attachmentsView]))
+            view.addConstraint(NSLayoutConstraint(item: attachmentsView, attribute: .Top, relatedBy: .Equal, toItem: bottomPanel, attribute: .Bottom, multiplier: 1.0, constant: 0))
+            attachmentsView.constrainHeight(attachmentsViewHeight)
+            showAttachmentsView()
+        }
+    }
+
+    private func showAttachmentsView() {
+        // Show attachments
+        UIView.animateWithDuration(0.3) {
+            self.bottomPanelBottomConstraint.constant = attachmentsViewHeight
+            self.view.layoutIfNeeded()
+        }
+    }
+    private func hideAttachmentsView(callback: () -> Void) {
+        // Hide attachments
+        UIView.animateWithDuration(0.3, animations: {
+            self.bottomPanelBottomConstraint.constant = 0
+            self.view.layoutIfNeeded()
+            }, completion: { finished in
+                callback()
+        })
+    }
+
     // MARK: Keaboard notification listeners
     private func regsterKeyboardNotifications() {
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWillAppear:", name: UIKeyboardWillShowNotification, object: nil)
@@ -195,5 +228,23 @@ class ExchangeAndRefundViewController: UIViewController, ChatMessagePanelDelegat
             self.bottomPanelBottomConstraint.constant = 0
             self.view.layoutIfNeeded()
         }, completion: nil)
+    }
+}
+
+private class ChatAttachmentsView: UIView {
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+
+        initializeView()
+    }
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    private func initializeView() {
+        backgroundColor = UIColor.iphoneMainNavbarColor()
+        translatesAutoresizingMaskIntoConstraints = false
+        
     }
 }
