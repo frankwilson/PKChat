@@ -34,6 +34,11 @@ protocol ChatMessagePanelDelegate: class {
     func hideOrShowAttachmentsView()
 }
 
+private enum ConfirmButtonViewMode {
+    case Confirmation(callback: () -> Void)
+    case NewRequest(type: ExchangeAndRefundRequestType, callback: () -> Void)
+}
+
 class ChatSendMessagePanel: UIView {
 
     var state = ChatSendMessagePanelState.Normal {
@@ -56,7 +61,7 @@ class ChatSendMessagePanel: UIView {
     }()
     private(set) var progressBar: UIProgressView?
     private let composeView: ComposeView
-    lazy private var confirmView: ConfirmButtonView = ConfirmButtonView()
+    private var confirmView: ConfirmButtonView!
 
     init(delegate: ChatMessagePanelDelegate) {
         self.composeView = ComposeView(delegate: delegate)
@@ -69,22 +74,24 @@ class ChatSendMessagePanel: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func presentConfirmationButton(show: Bool, animated: Bool) {
-        if show {
-            addSubview(confirmView)
-            let topConstraint = NSLayoutConstraint(item: confirmView, attribute: .Top, relatedBy: .Equal, toItem: self, attribute: .Top, multiplier: 1.0, constant: animated ? self.bounds.size.height : 0.0)
-            addConstraint(topConstraint)
-            addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("H:|[confirmView]|", options: [], metrics: nil, views: ["confirmView": confirmView]))
-            self.superview!.layoutIfNeeded()
-            self.composeView.textView.resignFirstResponder()
-            if animated {
-                UIView.animateWithDuration(0.3) {
-                    topConstraint.constant = 0.0
-                    self.composeView.textViewHeightConstraint.constant = minTextViewHeight
-                    self.superview!.layoutIfNeeded()
-                }
+    func presentConfirmationButton(animated animated: Bool, callback: () -> Void) {
+        confirmView = ConfirmButtonView(mode: .Confirmation(callback: callback))
+        addSubview(confirmView)
+        let topConstraint = NSLayoutConstraint(item: confirmView, attribute: .Top, relatedBy: .Equal, toItem: self, attribute: .Top, multiplier: 1.0, constant: animated ? self.bounds.size.height : 0.0)
+        addConstraint(topConstraint)
+        addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("H:|[confirmView]|", options: [], metrics: nil, views: ["confirmView": confirmView]))
+        self.superview!.layoutIfNeeded()
+        self.composeView.textView.resignFirstResponder()
+        if animated {
+            UIView.animateWithDuration(0.3) {
+                topConstraint.constant = 0.0
+                self.composeView.textViewHeightConstraint.constant = minTextViewHeight
+                self.superview!.layoutIfNeeded()
             }
-        } else if animated {
+        }
+    }
+    func hideConfirmationButton(animated animated: Bool) {
+        if animated {
             for constraint in self.constraints where constraint.firstAttribute == .Top && constraint.firstItem === confirmView {
                 self.removeConstraint(constraint)
                 break
@@ -95,8 +102,8 @@ class ChatSendMessagePanel: UIView {
                 topConstraint.constant = 0.0
                 self.composeView.resizeTextView(self.composeView.textView)
                 self.superview!.layoutIfNeeded()
-            }, completion: { completed in
-                self.confirmView.removeFromSuperview()
+                }, completion: { completed in
+                    self.confirmView.removeFromSuperview()
             })
         } else {
             confirmView.removeFromSuperview()
@@ -349,27 +356,47 @@ private class ComposeView: UIView, UITextViewDelegate {
 
 private class ConfirmButtonView: UIView {
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    private var callback: (() -> Void)?
 
-        initializeView()
+    init(mode: ConfirmButtonViewMode) {
+        super.init(frame: CGRectZero)
+
+        initializeView(mode)
     }
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    private func initializeView() {
+    private func initializeView(mode: ConfirmButtonViewMode) {
         backgroundColor = UIColor.iphoneMainNavbarColor()
         translatesAutoresizingMaskIntoConstraints = false
 
         constrainHeight(44.0)
-
-        let button = UIButton.withRoundCorners(title: NSLocalizedString("LocConfirmChoice", comment: ""), width: 200.0)
+        let title: String
+        switch mode {
+        case .Confirmation(let aCallback):
+            title = NSLocalizedString("LocConfirmChoice", comment: "")
+            callback = aCallback
+        case .NewRequest(let type, let aCallback):
+            switch type {
+            case .Exchange:
+                title = NSLocalizedString("LocNewExchange", comment: "")
+            case .Refund:
+                title = NSLocalizedString("LocNewReturn", comment: "")
+            }
+            callback = aCallback
+        }
+        let button = UIButton.withRoundCorners(title: title, width: 200.0)
+        button.addTarget(self, action: "buttonPressed:", forControlEvents: .TouchUpInside)
 
         addSubview(button)
         addConstraint(NSLayoutConstraint(item: button, attribute: .CenterX, relatedBy: .Equal, toItem: self, attribute: .CenterX, multiplier: 1.0, constant: 0.0))
         addConstraint(NSLayoutConstraint(item: button, attribute: .CenterY, relatedBy: .Equal, toItem: self, attribute: .CenterY, multiplier: 1.0, constant: 0.0))
 
         addHorizontalSeparatorLine(.Top)
+    }
+
+    @objc private func buttonPressed(button: UIButton) {
+        callback?()
     }
 }

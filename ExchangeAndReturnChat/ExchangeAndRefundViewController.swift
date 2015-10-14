@@ -71,11 +71,19 @@ class ExchangeAndRefundViewController: UIViewController, ChatMessagePanelDelegat
     private func configureChat() {
         // Bottom panel's Confirm button
         chatController.confirmationChangedCallback = { selection in
-            self.bottomPanel.presentConfirmationButton(selection == .Confirmed, animated: true)
+            if selection == .Confirmed {
+                self.bottomPanel.presentConfirmationButton(animated: true, callback: self.fareOfferConfirmed)
+            } else {
+                self.bottomPanel.hideConfirmationButton(animated: true)
+            }
         }
         chatController.retrySendingCallback = {
             print("Retry button pressed")
         }
+    }
+
+    private func fareOfferConfirmed() {
+        // Confirmation callback
     }
 
     private func configureNavigationBar() {
@@ -125,7 +133,7 @@ class ExchangeAndRefundViewController: UIViewController, ChatMessagePanelDelegat
         view.addSubview(bottomPanel)
 
         if let message = request.messages.last where message.requestStatus == .AwaitingConfirmation {
-            bottomPanel.presentConfirmationButton(true, animated: false)
+            bottomPanel.presentConfirmationButton(animated: false, callback: self.fareOfferConfirmed)
         }
 
         view.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("H:|[bottomPanel]|", options: [], metrics: nil, views: ["bottomPanel": bottomPanel]))
