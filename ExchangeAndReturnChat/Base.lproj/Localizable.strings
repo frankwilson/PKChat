@@ -7,6 +7,7 @@
 */
 
 "LocClose" = "Закрыть";
+"LocExchangeMessage" = "Сообщение";
 
 "LocExchangeTickets" = "Обмен билетов";
 "LocReturnTickets" = "Возврат билетов";

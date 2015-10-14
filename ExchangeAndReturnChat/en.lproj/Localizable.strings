@@ -7,6 +7,7 @@
 */
 
 "LocClose" = "Close";
+"LocExchangeMessage" = "Message";
 
 "LocExchangeTickets" = "Tickets exchange";
 "LocReturnTickets" = "Tickets refund";

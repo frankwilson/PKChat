@@ -214,6 +214,16 @@ private class ComposeView: UIView, UITextViewDelegate {
 
         return button
     }()
+    private let placeholderView: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = UIFont.iphoneDefaultFont(16.0)
+        label.textColor = UIColor.iphoneMainGrayColor()
+        label.text = NSLocalizedString("LocExchangeMessage", comment: "")
+        label.userInteractionEnabled = false
+
+        return label
+    }()
     private var enableSendButton = false {
         didSet {
             enableSendButtonIfNeeded()
@@ -249,6 +259,7 @@ private class ComposeView: UIView, UITextViewDelegate {
         addSubview(attachButton)
         addSubview(textView)
         addSubview(sendButton)
+        addSubview(placeholderView)
 
         let views = ["attachButton": attachButton, "textView": textView, "sendButton": sendButton]
 
@@ -256,6 +267,11 @@ private class ComposeView: UIView, UITextViewDelegate {
         addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|-margin-[textView]-margin-|", options: [], metrics: ["margin": textViewVerticalMargin], views: views))
         addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|->=0-[attachButton(44)]-<=5-|", options: [], metrics: nil, views: views))
         addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|->=0-[sendButton(44)]-<=5-|", options: [], metrics: nil, views: views))
+
+        addConstraint(NSLayoutConstraint(item: placeholderView, attribute: .Leading, relatedBy: .Equal, toItem: textView, attribute: .Leading, multiplier: 1.0, constant: 5))
+        addConstraint(NSLayoutConstraint(item: placeholderView, attribute: .Trailing, relatedBy: .Equal, toItem: textView, attribute: .Trailing, multiplier: 1.0, constant: -4))
+        addConstraint(NSLayoutConstraint(item: placeholderView, attribute: .Top, relatedBy: .Equal, toItem: textView, attribute: .Top, multiplier: 1.0, constant: 3))
+        addConstraint(NSLayoutConstraint(item: placeholderView, attribute: .Bottom, relatedBy: .Equal, toItem: textView, attribute: .Bottom, multiplier: 1.0, constant: -4))
 
         textViewHeightConstraint = textView.constrainHeight(minTextViewHeight)
     }
@@ -318,6 +334,7 @@ private class ComposeView: UIView, UITextViewDelegate {
         return true;
     }
     @objc func textViewDidChange(textView: UITextView) {
+        placeholderView.hidden = (textView.text.characters.count > 0)
         enableSendButtonIfNeeded()
     }
 }
