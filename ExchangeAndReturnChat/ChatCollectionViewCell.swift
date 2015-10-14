@@ -37,6 +37,7 @@ class ChatCollectionViewCell: UICollectionViewCell {
             }
         }
     }
+    var retrySendingCallback: (() -> Void)?
 
     private var position = ChatElementPosition.Left
     private var text: String?
@@ -206,8 +207,12 @@ class ChatCollectionViewCell: UICollectionViewCell {
     private func markAsFailed() {
         if failed {
             let warningButton = UIButton(type: .Custom)
-            warningButton.setBackgroundImage(UIImage(named: "Warning Sign"), forState: .Normal)
+            warningButton.setImage(UIImage(named: "Warning Sign"), forState: .Normal)
             warningButton.translatesAutoresizingMaskIntoConstraints = false
+            warningButton.addTarget(self, action: "retryButtonPressed:", forControlEvents: .TouchUpInside)
+            warningButton.constrainWidth(32, height: 32)
+            warningButton.contentVerticalAlignment = .Bottom
+            warningButton.contentHorizontalAlignment = .Right
             contentView.addSubview(warningButton)
             contentView.addConstraint(NSLayoutConstraint(item: warningButton, attribute: .Trailing, relatedBy: .Equal, toItem: contentView, attribute: .Trailing, multiplier: 1.0, constant: 0.0))
             contentView.addConstraint(NSLayoutConstraint(item: warningButton, attribute: .Bottom, relatedBy: .Equal, toItem: contentView, attribute: .Bottom, multiplier: 1.0, constant: 0.0))
@@ -219,11 +224,16 @@ class ChatCollectionViewCell: UICollectionViewCell {
         } else {
             warningButtonImageView?.removeFromSuperview()
             warningButtonImageView = nil
+            retrySendingCallback = nil
             UIView.animateWithDuration(0.1) {
                 self.bubbleLeagingConstraint.constant += failedBubbleRightInset
                 self.layoutIfNeeded()
             }
         }
+    }
+
+    @objc private func retryButtonPressed(button: UIButton) {
+        retrySendingCallback?()
     }
 
 }

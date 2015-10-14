@@ -34,5 +34,8 @@ extension UIColor {
     @inline(__always) class func iphoneMainGrayColor() -> UIColor {
         return UIColor(colorCode: 0x818998)
     }
+    @inline(__always) class func iphoneDestructiveRedColor() -> UIColor {
+        return UIColor(colorCode: 0xFF6A5D)
+    }
 
 }

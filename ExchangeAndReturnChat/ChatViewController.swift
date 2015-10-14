@@ -12,6 +12,7 @@ private let chatCellIdentifier = "ExchangeAndReturnChatBubble"
 private let confirmationCellIdentifier = "ExchangeAndReturnConfirmationBlock"
 private let chatHeaderIdentifier = "ExchangeAndReturnChatDateAndTime"
 private let chatFooterIdentifier = "ExchangeAndReturnChatFinishStatus"
+private let messageNotSentFooterIdentifier = "ExchangeAndReturnChatMessageNotSent"
 
 
 enum ChatState {
@@ -89,9 +90,12 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
     }
 
     var confirmationChangedCallback: (ExchangeConfirmationOption -> Void)?
+    var retrySendingCallback: (() -> Void)?
     var messageSendingFailed = false {
         didSet {
-            markLastSectionAsFailed(messageSendingFailed)
+            if messageSendingFailed != oldValue {
+                markLastSectionAsFailed(messageSendingFailed)
+            }
         }
     }
     private var lastSectionIndex: Int {
@@ -131,6 +135,7 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
             c.registerClass(ChatConfirmationBlockCell.self, forCellWithReuseIdentifier: confirmationCellIdentifier)
             c.registerClass(ChatDateAndTimeReusableView.self, forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: chatHeaderIdentifier)
             c.registerClass(ChatFinishedReusableView.self, forSupplementaryViewOfKind: UICollectionElementKindSectionFooter, withReuseIdentifier: chatFooterIdentifier)
+            c.registerClass(SendingErrorReusableView.self, forSupplementaryViewOfKind: UICollectionElementKindSectionFooter, withReuseIdentifier: messageNotSentFooterIdentifier)
         }
 
         layout.sectionInset = UIEdgeInsets(top: 10, left: 0, bottom: 10, right: 0)
@@ -236,6 +241,8 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
 
         if message.requestStatus == .Cancelled || message.requestStatus == .Finished {
             return CGSize(width: 200, height: 24)
+        } else if messageSendingFailed && section == lastSectionIndex {
+            return CGSize(width: 200, height: 14)
         } else {
             return CGSizeZero
         }
@@ -257,6 +264,11 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
                 let view = collectionView.dequeueReusableSupplementaryViewOfKind(kind, withReuseIdentifier: chatFooterIdentifier, forIndexPath: indexPath) as! ChatFinishedReusableView
                 view.backgroundColor = self.collectionView?.backgroundColor
                 view.configure(statusDescription: ChatState(requestStatus: message.requestStatus, operatorName: request.operatorName).description, date: message.date, showUnderline: false)
+
+                return view
+            } else if messageSendingFailed && indexPath.section == lastSectionIndex {
+                let view = collectionView.dequeueReusableSupplementaryViewOfKind(kind, withReuseIdentifier: messageNotSentFooterIdentifier, forIndexPath: indexPath) as! SendingErrorReusableView
+                view.backgroundColor = self.collectionView?.backgroundColor
 
                 return view
             }
@@ -287,7 +299,10 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
             cell.configure(image: image, position: position)
         }
 
-        cell.failed = (messageSendingFailed && indexPath.section == lastSectionIndex)
+        cell.failed = (messageSendingFailed && indexPath.section == lastSectionIndex && indexPath.row == collectionView(collectionView!, numberOfItemsInSection: lastSectionIndex) - 1)
+        if cell.failed {
+            cell.retrySendingCallback = retrySendingCallback
+        }
     }
 
     /**
@@ -380,8 +395,8 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
 
     private func markLastSectionAsFailed(failed: Bool) {
         collectionView?.reloadSections(NSIndexSet(index: lastSectionIndex))
+        collectionView!.scrollRectToVisible(CGRect(x: 0, y: collectionView!.contentSize.height, width: 300, height: 12), animated: true)
     }
-
 }
 
 private class ChatDateAndTimeReusableView: UICollectionReusableView {
@@ -425,7 +440,6 @@ private class ChatDateAndTimeReusableView: UICollectionReusableView {
         addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("H:|[label]|", options: [.AlignAllCenterX], metrics: nil, views: ["label": label]))
         addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|[label]|", options: [.AlignAllCenterY], metrics: nil, views: ["label": label]))
     }
-
 }
 
 private class ChatFinishedReusableView: UICollectionReusableView {
@@ -490,5 +504,38 @@ private class ChatFinishedReusableView: UICollectionReusableView {
         addSubview(label)
         addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("H:|[label]|", options: [], metrics: nil, views: ["label": label]))
     }
+}
 
+private class SendingErrorReusableView: UICollectionReusableView {
+
+    private var label: UILabel = {
+        let label = UILabel()
+
+        label.textAlignment = .Right
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.setContentHuggingPriority(UILayoutPriorityDefaultLow, forAxis: .Horizontal)
+        label.setContentHuggingPriority(UILayoutPriorityDefaultLow, forAxis: .Vertical)
+        label.textColor = UIColor.iphoneDestructiveRedColor()
+        label.font = UIFont.iphoneBoldFont(11.0)
+        label.text = NSLocalizedString("LocExchangeBubbleFailed", comment: "")
+
+        return label
+    }()
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+
+        initializeView()
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    private func initializeView() {
+
+        addSubview(label)
+        addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("H:|[label]-10-|", options: [], metrics: nil, views: ["label": label]))
+        addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|[label]|", options: [], metrics: nil, views: ["label": label]))
+    }
 }

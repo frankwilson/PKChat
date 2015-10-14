@@ -72,6 +72,9 @@ class ExchangeAndRefundViewController: UIViewController, ChatMessagePanelDelegat
         chatController.confirmationChangedCallback = { selection in
             self.bottomPanel.presentConfirmationButton(selection == .Confirmed, animated: true)
         }
+        chatController.retrySendingCallback = {
+            print("Retry button pressed")
+        }
     }
 
     private func configureNavigationBar() {

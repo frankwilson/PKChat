@@ -16,5 +16,8 @@ extension UIFont {
     @inline(__always) class func iphoneRegularFont(size: CGFloat) -> UIFont {
         return UIFont(name: "HelveticaNeue", size: size)!
     }
+    @inline(__always) class func iphoneBoldFont(size: CGFloat) -> UIFont {
+        return UIFont(name: "HelveticaNeue-Bold", size: size)!
+    }
 
 }
