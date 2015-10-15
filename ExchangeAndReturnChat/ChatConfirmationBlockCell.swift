@@ -422,8 +422,6 @@ private class PaymentView: UIView {
     }
 
     @objc func payButtonPressed() {
-        print("Button pressed!")
-
         if let callback = self.callback {
             callback()
         }

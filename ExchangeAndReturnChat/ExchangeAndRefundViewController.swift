@@ -86,6 +86,9 @@ class ExchangeAndRefundViewController: UIViewController, ChatMessagePanelDelegat
         chatController.retrySendingCallback = {
             print("Retry button pressed")
         }
+        chatController.paymentCallback = { ticketId in
+            print("Pay button pressed")
+        }
     }
 
     private func configureNavigationBar() {
@@ -151,7 +154,9 @@ class ExchangeAndRefundViewController: UIViewController, ChatMessagePanelDelegat
         case .AwaitingConfirmation:
             bottomPanel.presentConfirmationButton(animated: false, callback: fareOfferConfirmed)
         case .Confirmed:
-            bottomPanel.hideConfirmationButton(animated: true)
+            if let prevStatus = previousStatus where prevStatus == .AwaitingConfirmation {
+                bottomPanel.hideConfirmationButton(animated: true)
+            }
         case .Finished:
             fallthrough
         case .Cancelled:

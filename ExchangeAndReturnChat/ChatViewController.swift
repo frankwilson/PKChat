@@ -91,6 +91,7 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
 
     var confirmationChangedCallback: (ExchangeConfirmationOption -> Void)?
     var retrySendingCallback: (() -> Void)?
+    var paymentCallback: (String -> Void)?
     var messageSendingFailed = false {
         didSet {
             if messageSendingFailed != oldValue {
@@ -354,7 +355,7 @@ class ChatViewController: UICollectionViewController, UICollectionViewDelegateFl
             let value = NSNumber(double: changeRequest.totalAmountCeiled)
             let priceText = priceFormatter.stringFromNumber(value)!
             cellMode = ChatConfirmationCellMode.WaitingForPayment(changeRequestId: changeRequest.changeId, priceText: priceText, payButtonCallback: { changeRequestId in
-                // TODO: Pay Button Pressed
+                self.paymentCallback?(changeRequestId)
             })
         } else if changeRequest.status == .PaymentCaptured {
             cellMode = .PaymentComplete
