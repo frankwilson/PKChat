@@ -75,7 +75,19 @@ class ChatSendMessagePanel: UIView {
     }
 
     func presentConfirmationButton(animated animated: Bool, callback: () -> Void) {
-        confirmView = ConfirmButtonView(mode: .Confirmation(callback: callback))
+        presentButtonPanel(mode: .Confirmation(callback: callback), animated: animated)
+    }
+    func presentNewRequestButton(requestType requestType: ExchangeAndRefundRequestType,  animated: Bool, callback: () -> Void) {
+        presentButtonPanel(mode: .NewRequest(type: requestType, callback: callback), animated: animated)
+    }
+    func hideConfirmationButton(animated animated: Bool) {
+        hideButtonPanel(animated)
+    }
+    func hideNewRequestButton(animated animated: Bool) {
+        hideButtonPanel(animated)
+    }
+    private func presentButtonPanel(mode mode: ConfirmButtonViewMode, animated: Bool) {
+        confirmView = ConfirmButtonView(mode: mode)
         addSubview(confirmView)
         let topConstraint = NSLayoutConstraint(item: confirmView, attribute: .Top, relatedBy: .Equal, toItem: self, attribute: .Top, multiplier: 1.0, constant: animated ? self.bounds.size.height : 0.0)
         addConstraint(topConstraint)
@@ -90,7 +102,7 @@ class ChatSendMessagePanel: UIView {
             }
         }
     }
-    func hideConfirmationButton(animated animated: Bool) {
+    private func hideButtonPanel(animated: Bool) {
         if animated {
             for constraint in self.constraints where constraint.firstAttribute == .Top && constraint.firstItem === confirmView {
                 self.removeConstraint(constraint)

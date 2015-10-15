@@ -17,7 +17,11 @@ class ExchangeAndRefundViewController: UIViewController, ChatMessagePanelDelegat
     }()
     lazy private var attachmentsView: ChatAttachmentsView = ChatAttachmentsView()
 
-    private var request: ExchangeAndRefundRequest
+    private var request: ExchangeAndRefundRequest {
+        didSet {
+            processRequestStatus(oldValue.status)
+        }
+    }
 
     /// Constraint used to move the bottom panel up when displaying keyboard
     private var bottomPanelBottomConstraint: NSLayoutConstraint!
@@ -66,6 +70,8 @@ class ExchangeAndRefundViewController: UIViewController, ChatMessagePanelDelegat
         configureBottomPanel()
         configureNavigationBar()
         regsterKeyboardNotifications()
+
+        processRequestStatus()
     }
 
     private func configureChat() {
@@ -80,10 +86,6 @@ class ExchangeAndRefundViewController: UIViewController, ChatMessagePanelDelegat
         chatController.retrySendingCallback = {
             print("Retry button pressed")
         }
-    }
-
-    private func fareOfferConfirmed() {
-        // Confirmation callback
     }
 
     private func configureNavigationBar() {
@@ -132,14 +134,37 @@ class ExchangeAndRefundViewController: UIViewController, ChatMessagePanelDelegat
         view.addSubview(chatController.view)
         view.addSubview(bottomPanel)
 
-        if let message = request.messages.last where message.requestStatus == .AwaitingConfirmation {
-            bottomPanel.presentConfirmationButton(animated: false, callback: self.fareOfferConfirmed)
-        }
-
         view.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("H:|[bottomPanel]|", options: [], metrics: nil, views: ["bottomPanel": bottomPanel]))
         view.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|[chat][bottomPanel]", options: [.AlignAllLeading, .AlignAllTrailing], metrics: nil, views: ["chat": chatController.view, "bottomPanel": bottomPanel]))
         bottomPanelBottomConstraint = NSLayoutConstraint(item: view, attribute: .Bottom, relatedBy: .Equal, toItem: bottomPanel, attribute: .Bottom, multiplier: 1.0, constant: 0.0)
         view.addConstraint(bottomPanelBottomConstraint)
+    }
+
+    private func processRequestStatus(previousStatus: ExchangeAndRefundRequestStatus? = nil) {
+        switch request.status {
+        case .Requested:
+            if let prevStatus = previousStatus where prevStatus == .Cancelled || prevStatus == .Finished {
+                bottomPanel.hideNewRequestButton(animated: true)
+            }
+        case .Answered:
+            break
+        case .AwaitingConfirmation:
+            bottomPanel.presentConfirmationButton(animated: false, callback: fareOfferConfirmed)
+        case .Confirmed:
+            bottomPanel.hideConfirmationButton(animated: true)
+        case .Finished:
+            fallthrough
+        case .Cancelled:
+            bottomPanel.presentNewRequestButton(requestType: request.type, animated: true, callback: createNewRequest)
+        }
+    }
+
+    private func fareOfferConfirmed() {
+        // Confirmation callback
+    }
+
+    private func createNewRequest() {
+        // New request button callback
     }
 
     // MARK: Chat Message Panel Delegate
